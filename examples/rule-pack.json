@@ -1,0 +1,70 @@
+{
+  "description": "Example custom rules for local scholarly-review policy.",
+  "name": "local-review-policy",
+  "rules": [
+    {
+      "confidence": 0.86,
+      "id": "forbid_private_review_request",
+      "patterns": [
+        "\\b(private|confidential)\\s+review\\s+(notes?|comments?)\\b",
+        "\\bdo\\s+not\\s+share\\s+with\\s+authors\\b"
+      ],
+      "remediation": "Remove references to private review material before document ingestion.",
+      "severity": "high",
+      "tags": [
+        "custom-policy",
+        "peer-review"
+      ],
+      "title": "Reference to private review material"
+    },
+    {
+      "confidence": 0.7,
+      "id": "flag_local_acceptance_phrase",
+      "patterns": [
+        "\\bguaranteed\\s+acceptance\\b"
+      ],
+      "remediation": "Inspect acceptance-related language for review manipulation.",
+      "severity": "medium",
+      "tags": [
+        "custom-policy"
+      ],
+      "title": "Local acceptance-pressure phrase"
+    }
+  ],
+  "tests": [
+    {
+      "expected": {
+        "max_findings": 1,
+        "min_findings": 1,
+        "min_severity": "high",
+        "rule_ids": [
+          "forbid_private_review_request"
+        ]
+      },
+      "name": "private-review-note-positive",
+      "text": "The appendix contains confidential review comments for the committee."
+    },
+    {
+      "expected": {
+        "max_findings": 1,
+        "min_findings": 1,
+        "min_severity": "medium",
+        "rule_ids": [
+          "flag_local_acceptance_phrase"
+        ]
+      },
+      "name": "acceptance-pressure-positive",
+      "text": "The document promises guaranteed acceptance after resubmission."
+    },
+    {
+      "expected": {
+        "max_findings": 0,
+        "min_findings": 0,
+        "rule_ids": []
+      },
+      "name": "ordinary-review-language-negative",
+      "text": "The paper reports a limitation analysis and asks reviewers to evaluate the evidence."
+    }
+  ],
+  "version": "0.1.0"
+}

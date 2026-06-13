@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security disclosure
+    url: https://github.com/King-play/OpenScholarGuard/security/advisories/new
+    about: Report vulnerabilities privately instead of opening a public issue.
+  - name: Documentation
+    url: https://github.com/King-play/OpenScholarGuard/tree/main/docs
+    about: Check the current documentation before filing an issue.

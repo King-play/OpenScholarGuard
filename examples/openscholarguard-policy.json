@@ -1,0 +1,37 @@
+{
+  "exclude": [
+    "**/.git/**",
+    "**/.pytest_cache/**",
+    "**/.ruff_cache/**",
+    "**/.mypy_cache/**",
+    "**/__pycache__/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.egg-info/**",
+    "**/.openscholarguard.json",
+    "**/openscholarguard-policy.json"
+  ],
+  "fail_on": "high",
+  "include": [
+    "**/*.pdf",
+    "**/*.txt",
+    "**/*.md",
+    "**/*.markdown",
+    "**/*.tex",
+    "**/*.html",
+    "**/*.htm",
+    "**/*.xml",
+    "**/*.json",
+    "**/*.csv"
+  ],
+  "max_file_bytes": 26214400,
+  "profile": "ai-review",
+  "rule_packs": [],
+  "suppressions": [
+    {
+      "detector_id": "suspicious_density",
+      "path": "docs/**",
+      "reason": "Accepted low-confidence documentation noise."
+    }
+  ]
+}
