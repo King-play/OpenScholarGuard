@@ -11,9 +11,11 @@ document agents. OpenScholarGuard scans papers and other documents for prompt in
 hidden instructions, review manipulation, encoded payloads, invisible Unicode, suspicious
 PDF styling, and risky PDF metadata before they reach AI reviewers or RAG pipelines.
 
-> Public demo URL after release: <https://king-play.github.io/OpenScholarGuard/>
+> Online demo: <https://king-play.github.io/OpenScholarGuard/>
 
-![OpenScholarGuard static demo preview](docs/assets/demo-preview.png)
+[![OpenScholarGuard demo walkthrough](docs/assets/demo-preview.gif)](https://king-play.github.io/OpenScholarGuard/)
+
+Static preview: [docs/assets/demo-preview.png](docs/assets/demo-preview.png)
 
 Demo screenshots and GIF/MP4 source frames are reproducible with:
 
@@ -36,7 +38,10 @@ shareable leaderboard-style report.
 - **Ingest** guarded chunks with provenance, detector metadata, and blocking policy.
 - **Verify** custom rule packs with embedded positive and negative tests.
 - **Demo** the full workflow as a static site with ten reproducible attack examples.
-- **Benchmark** scanner behavior with `docpibench-mini` and leaderboard-style reports.
+- **Benchmark** scanner behavior with `scholarguardbench-v0`, `docpibench-mini`, and leaderboard-style reports.
+- **Judge** model responses with a reproducible prompt/response protocol skeleton.
+- **Deep-audit PDFs** for OCR candidates, image-heavy pages, hidden spans, and visual/text-layer mismatch.
+- **Draft papers** with generated arXiv skeletons and benchmark tables.
 
 ## Try The Demo
 
@@ -128,7 +133,14 @@ openscholarguard sanitize examples/injected_paper.md --output clean.md --manifes
 Run the built-in benchmark:
 
 ```bash
-openscholarguard benchmark evaluate --dataset docpibench-mini
+openscholarguard benchmark evaluate --dataset scholarguardbench-v0
+```
+
+Generate model-evaluation prompts and judge filled responses:
+
+```bash
+openscholarguard benchmark protocol --dataset scholarguardbench-v0 --output-dir model-eval
+openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl
 ```
 
 Audit a directory for CI or batch ingestion:
@@ -151,6 +163,12 @@ Run the local HTTP API:
 openscholarguard serve --host 127.0.0.1 --port 8765
 ```
 
+Run PDF deep audit checks:
+
+```bash
+openscholarguard pdf-audit paper.pdf --format md --output pdf.deep.md
+```
+
 Use a custom rule pack:
 
 ```bash
@@ -162,7 +180,13 @@ openscholarguard scan paper.md --rule-pack examples/rule-pack.json
 Generate benchmark samples:
 
 ```bash
-openscholarguard benchmark generate --dataset docpibench-mini --output-dir benchmark-output
+openscholarguard benchmark generate --dataset scholarguardbench-v0 --output-dir benchmark-output
+```
+
+Generate an arXiv paper skeleton and experiment tables:
+
+```bash
+openscholarguard paper --output-dir paper-output --overwrite
 ```
 
 The package also installs shorter aliases:
@@ -195,6 +219,11 @@ Current first-stage detectors include:
 - Invisible and bidirectional Unicode controls.
 - Hidden LaTeX patterns.
 - Hidden HTML/CSS patterns.
+- OCR-layer and image/alt-text prompt injection.
+- Fake citation and AI slop quality-risk signals.
+- RAG contamination and agent tool exfiltration requests.
+- Mixed-script homoglyph prompt-injection attempts.
+- Role-play attempts to hijack reviewer authority.
 - PDF spans with tiny fonts, near-white text, transparency, or off-page placement.
 - PDF metadata instructions.
 - Suspicious instruction-term density.
@@ -232,25 +261,53 @@ openscholarguard benchmark evaluate --format html --output benchmark.html
 
 ## Benchmark
 
-OpenScholarGuard includes `docpibench-mini`, a reproducible synthetic benchmark for
-document-borne prompt injection and AI-review manipulation. It covers clean controls,
-direct instruction override, review manipulation, RAG exfiltration, encoded payloads,
-invisible Unicode, hidden HTML, hidden LaTeX, multilingual review pressure, local policy
-violations, and citation manipulation.
+OpenScholarGuard includes two built-in benchmark tracks:
+
+- `scholarguardbench-v0`: the formal v0 seed with 21 synthetic cases across AI-review,
+  RAG, multimodal document, citation-integrity, Unicode obfuscation, AI slop, and
+  agent-tool safety surfaces.
+- `docpibench-mini`: a compact smoke-test set with one clean control and ten attack cases
+  used by the static demo gallery.
 
 Useful commands:
 
 ```bash
 openscholarguard benchmark list
 openscholarguard benchmark generate --output-dir benchmark-output
-openscholarguard benchmark evaluate --dataset docpibench-mini --format json --output benchmark-output/openscholarguard.eval.json
+openscholarguard benchmark evaluate --dataset scholarguardbench-v0 --format json --output benchmark-output/openscholarguard.eval.json
 openscholarguard benchmark submit benchmark-output/openscholarguard.eval.json --system OpenScholarGuard --version 0.1.0 --output benchmark-output/entries/openscholarguard.json
 openscholarguard benchmark leaderboard benchmark-output/entries --format html --output benchmark-output/leaderboard.html
 openscholarguard benchmark publish --output-dir benchmark-publication
 openscholarguard benchmark evaluate --manifest benchmark-output/manifest.json --format html --output benchmark.html
+openscholarguard benchmark protocol --output-dir model-eval
+openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl --format md --output model-eval/judge.md
 ```
 
 See [docs/benchmark.md](docs/benchmark.md) for details.
+
+## PDF Deep Audit
+
+`pdf-audit` inspects surfaces that ordinary text extraction can miss: sparse text layers,
+image-heavy pages, visually nonblank pages with little extracted text, hidden PDF spans,
+and optional PyMuPDF/Tesseract OCR deltas.
+
+```bash
+openscholarguard pdf-audit paper.pdf --format html --output reports/pdf.deep.html
+openscholarguard pdf-audit paper.pdf --enable-ocr --format json --output reports/pdf.deep.json
+```
+
+See [docs/pdf-audit.md](docs/pdf-audit.md) for details.
+
+## Paper Skeleton
+
+Generate a reproducible arXiv-style draft directory from the current benchmark:
+
+```bash
+openscholarguard paper --output-dir paper-output --overwrite
+```
+
+The generator writes `main.tex`, benchmark coverage tables, deterministic baseline tables,
+and the evaluation JSON used to produce them. See [docs/paper.md](docs/paper.md).
 
 ## Static Demo
 

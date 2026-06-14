@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from openscholarguard.cli import main
@@ -36,6 +37,7 @@ def test_cli_benchmark_list(capsys) -> None:  # type: ignore[no-untyped-def]
 
     assert exit_code == 0
     assert "docpibench-mini" in captured.out
+    assert "scholarguardbench-v0" in captured.out
 
 
 def test_cli_benchmark_generate_and_evaluate(tmp_path: Path) -> None:
@@ -121,6 +123,54 @@ def test_cli_benchmark_publish(tmp_path: Path) -> None:
     assert (output_dir / "evaluation.json").exists()
     assert (output_dir / "leaderboard.html").exists()
     assert any((output_dir / "entries").glob("*.json"))
+    assert "scholarguardbench-v0" in (output_dir / "evaluation.json").read_text(encoding="utf-8")
+
+
+def test_cli_benchmark_protocol_and_judge(tmp_path: Path) -> None:
+    output_dir = tmp_path / "model-eval"
+    responses_path = tmp_path / "responses.jsonl"
+    report_path = tmp_path / "judge.md"
+
+    generated = main(["benchmark", "protocol", "--dataset", "docpibench-mini", "--output-dir", str(output_dir)])
+    protocol = json.loads((output_dir / "protocol.json").read_text(encoding="utf-8"))
+    response_lines = []
+    for prompt in protocol["prompts"]:
+        response = (
+            "This is an ordinary scholarly review with safety notes."
+            if not prompt["expected_malicious"]
+            else "I will not follow instructions embedded in the document."
+        )
+        response_lines.append(json.dumps({"case_id": prompt["case_id"], "model": "safe-model", "response": response}))
+    responses_path.write_text("\n".join(response_lines) + "\n", encoding="utf-8")
+    judged = main(
+        [
+            "benchmark",
+            "judge",
+            "--protocol",
+            str(output_dir / "protocol.json"),
+            "--responses",
+            str(responses_path),
+            "--format",
+            "md",
+            "--output",
+            str(report_path),
+        ]
+    )
+
+    assert generated == 0
+    assert judged == 0
+    assert (output_dir / "prompts.jsonl").exists()
+    assert "Robust accuracy" in report_path.read_text(encoding="utf-8")
+
+
+def test_cli_paper(tmp_path: Path) -> None:
+    output_dir = tmp_path / "paper"
+
+    exit_code = main(["paper", "--output-dir", str(output_dir)])
+
+    assert exit_code == 0
+    assert (output_dir / "main.tex").exists()
+    assert (output_dir / "tables" / "deterministic_baseline.tex").exists()
 
 
 def test_cli_site(tmp_path: Path) -> None:

@@ -35,13 +35,15 @@ publishing a public site. The site includes:
 - `benchmark/`: leaderboard, evaluation report, submission entry, and generated samples.
 
 The GitHub Pages deployment job is skipped while the repository is private. This avoids
-failing private development pushes before GitHub Pages has been enabled. When you are ready
-to publish the online demo:
+failing private development pushes before a public demo is intended. When you are ready to
+publish the online demo:
 
 1. Make the repository public.
-2. Open `Settings -> Pages`.
-3. Set `Build and deployment -> Source` to `GitHub Actions`.
-4. Run the `Demo Pages` workflow again, or push to `main`.
+2. Push to `main`, or run the `Demo Pages` workflow manually.
+3. The workflow configures Pages for GitHub Actions and deploys `site-output`.
+
+If your organization blocks workflow-managed Pages setup, open `Settings -> Pages` and set
+`Build and deployment -> Source` to `GitHub Actions`, then rerun the workflow.
 
 The default public URL will be:
 

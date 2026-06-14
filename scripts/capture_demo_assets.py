@@ -1,8 +1,8 @@
 """Capture reproducible README and demo media assets.
 
 The script intentionally depends only on Python's standard library and a local Chromium or
-Chrome executable. It generates PNG screenshots and ordered frame images that can be turned
-into GIF/MP4 assets with ImageMagick or ffmpeg when those tools are available.
+Chrome executable. If Pillow is installed, it also builds a small animated GIF from the
+captured frames. MP4 generation remains optional and can be handled with ffmpeg.
 """
 
 from __future__ import annotations
@@ -66,9 +66,16 @@ def main(argv: list[str] | None = None) -> int:
             ),
         )
 
+    gif_path = output_dir / "demo-preview.gif"
+    gif_created = _maybe_create_gif(frames_dir, gif_path, duration_ms=args.gif_frame_ms)
+
     print(f"Captured README preview: {output_dir / 'demo-preview.png'}")
     print(f"Captured site preview: {output_dir / 'site-preview.png'}")
     print(f"Captured frames: {frames_dir}")
+    if gif_created:
+        print(f"Captured README GIF: {gif_path}")
+    else:
+        print("Skipped GIF generation because Pillow is not installed.")
     return 0
 
 
@@ -98,6 +105,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--chrome", help="path to Chrome or Chromium executable")
     parser.add_argument("--width", type=int, default=1440)
     parser.add_argument("--height", type=int, default=1040)
+    parser.add_argument("--gif-frame-ms", type=int, default=1250, help="duration per GIF frame")
     return parser
 
 
@@ -139,6 +147,32 @@ def _capture_url(capture: Capture) -> str:
     if not capture.fragment:
         return html_uri
     return f"{html_uri}#{capture.fragment}"
+
+
+def _maybe_create_gif(frames_dir: Path, output_path: Path, *, duration_ms: int) -> bool:
+    try:
+        from PIL import Image
+    except ImportError:
+        return False
+
+    frame_paths = sorted(frames_dir.glob("*.png"))
+    if not frame_paths:
+        return False
+
+    images = []
+    for frame_path in frame_paths:
+        with Image.open(frame_path) as image:
+            images.append(image.convert("P", palette=Image.Palette.ADAPTIVE))
+    first, *rest = images
+    first.save(
+        output_path,
+        save_all=True,
+        append_images=rest,
+        duration=max(250, duration_ms),
+        loop=0,
+        optimize=True,
+    )
+    return True
 
 
 if __name__ == "__main__":

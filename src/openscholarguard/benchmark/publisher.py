@@ -45,7 +45,7 @@ class BenchmarkPublication:
 def publish_builtin_benchmark(
     output_dir: Union[str, Path],
     *,
-    dataset: str = "docpibench-mini",
+    dataset: str = "scholarguardbench-v0",
     profile: str = "ai-review",
     fail_on: Severity = Severity.HIGH,
     system: str = "OpenScholarGuard",

@@ -26,6 +26,14 @@ class AttackFamily(str, Enum):
     CUSTOM_POLICY = "custom_policy"
     METADATA_INJECTION = "metadata_injection"
     CITATION_MANIPULATION = "citation_manipulation"
+    OCR_LAYER = "ocr_layer"
+    IMAGE_TEXT = "image_text"
+    FAKE_CITATION = "fake_citation"
+    RAG_CONTAMINATION = "rag_contamination"
+    HOMOGLYPH = "homoglyph"
+    ROLE_PLAY_HIJACK = "role_play_hijack"
+    AI_SLOP = "ai_slop"
+    TOOL_EXFILTRATION = "tool_exfiltration"
 
 
 @dataclass(frozen=True)
@@ -42,6 +50,11 @@ class BenchmarkCase:
     template: str
     payload: str = ""
     tags: list[str] = field(default_factory=list)
+    attack_goal: str = ""
+    target_workflow: str = ""
+    visibility: str = "model-visible"
+    modality: str = "text"
+    source: str = "synthetic"
 
     def render(self) -> str:
         return self.template.format(payload=self.payload)
@@ -70,6 +83,12 @@ class GeneratedSample:
     expected_detectors: list[str]
     minimum_severity: Severity
     family: AttackFamily
+    tags: list[str] = field(default_factory=list)
+    attack_goal: str = ""
+    target_workflow: str = ""
+    visibility: str = ""
+    modality: str = ""
+    source: str = "synthetic"
 
     def to_dict(self) -> dict[str, Any]:
         return _json_ready(asdict(self))
@@ -186,6 +205,12 @@ def load_manifest(path: str | Path) -> list[GeneratedSample]:
                 expected_detectors=list(item["expected_detectors"]),
                 minimum_severity=Severity(item["minimum_severity"]),
                 family=AttackFamily(item["family"]),
+                tags=list(item.get("tags", [])),
+                attack_goal=str(item.get("attack_goal", "")),
+                target_workflow=str(item.get("target_workflow", "")),
+                visibility=str(item.get("visibility", "")),
+                modality=str(item.get("modality", "")),
+                source=str(item.get("source", "synthetic")),
             )
         )
     return samples

@@ -39,6 +39,32 @@ def test_builtin_dataset_has_expected_coverage() -> None:
     assert all(case.id for case in dataset.cases)
 
 
+def test_scholarguardbench_v0_has_formal_metadata() -> None:
+    dataset = get_builtin_dataset("scholarguardbench-v0")
+
+    families = {case.family.value for case in dataset.cases}
+
+    assert dataset.version == "0.1.0"
+    assert len(dataset.cases) == 21
+    assert len([case for case in dataset.cases if case.expected_malicious]) == 19
+    assert len([case for case in dataset.cases if not case.expected_malicious]) == 2
+    assert {
+        "ai_slop",
+        "fake_citation",
+        "homoglyph",
+        "image_text",
+        "metadata_injection",
+        "ocr_layer",
+        "rag_contamination",
+        "role_play_hijack",
+        "tool_exfiltration",
+    }.issubset(families)
+    assert all(case.attack_goal for case in dataset.cases)
+    assert all(case.target_workflow for case in dataset.cases)
+    assert all(case.visibility for case in dataset.cases)
+    assert all(case.modality for case in dataset.cases)
+
+
 def test_generate_documents_writes_manifest(tmp_path: Path) -> None:
     dataset = get_builtin_dataset("docpibench-mini")
 
@@ -49,6 +75,18 @@ def test_generate_documents_writes_manifest(tmp_path: Path) -> None:
     assert all(Path(sample.path).exists() for sample in samples)
 
 
+def test_generate_documents_preserves_benchmark_metadata(tmp_path: Path) -> None:
+    dataset = get_builtin_dataset("scholarguardbench-v0")
+
+    samples = generate_documents(dataset, tmp_path)
+
+    sample = next(item for item in samples if item.case_id == "rag_poisoned_context")
+    assert sample.attack_goal == "contaminate downstream retrieval-augmented answers"
+    assert sample.target_workflow == "rag-ingestion"
+    assert sample.visibility == "retrieved-context"
+    assert sample.modality == "text"
+
+
 def test_evaluate_benchmark_passes_builtin_dataset(tmp_path: Path) -> None:
     dataset = get_builtin_dataset("docpibench-mini")
 
@@ -56,6 +94,18 @@ def test_evaluate_benchmark_passes_builtin_dataset(tmp_path: Path) -> None:
 
     assert evaluation.metrics.total == len(dataset.cases)
     assert evaluation.metrics.recall == 1.0
+    assert evaluation.metrics.false_negative == 0
+    assert all(sample.passed for sample in evaluation.samples)
+
+
+def test_evaluate_benchmark_passes_scholarguardbench_v0(tmp_path: Path) -> None:
+    dataset = get_builtin_dataset("scholarguardbench-v0")
+
+    evaluation = evaluate_benchmark(dataset, work_dir=tmp_path, fail_on=Severity.HIGH)
+
+    assert evaluation.metrics.total == 21
+    assert evaluation.metrics.recall == 1.0
+    assert evaluation.metrics.detector_recall == 1.0
     assert evaluation.metrics.false_negative == 0
     assert all(sample.passed for sample in evaluation.samples)
 
@@ -155,4 +205,5 @@ def test_publish_builtin_benchmark_writes_publication_bundle(tmp_path: Path) -> 
     assert publication.leaderboard_json.exists()
     assert publication.leaderboard_markdown.exists()
     assert publication.leaderboard_html.exists()
+    assert "scholarguardbench-v0" in publication.evaluation_markdown.read_text(encoding="utf-8")
     assert "OpenScholarGuard" in publication.leaderboard_markdown.read_text(encoding="utf-8")

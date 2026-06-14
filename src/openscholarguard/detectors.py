@@ -179,6 +179,134 @@ class HtmlHiddenContentDetector(RegexChunkDetector):
     )
 
 
+class OcrLayerInstructionDetector(RegexChunkDetector):
+    id = "ocr_layer_instruction"
+    title = "OCR layer contains model-facing instruction"
+    severity = Severity.HIGH
+    confidence = 0.82
+    remediation = "Inspect OCR-only text and keep hidden OCR layers out of AI-visible review or RAG input."
+    tags = ["ocr", "hidden-content", "prompt-injection"]
+    patterns = (
+        re.compile(
+            r"\b(?:ocr\s*layer|hidden\s*ocr|ocr\s*text|recognized\s*text)\b"
+            r"[^.\n]{0,160}\b(?:ignore|override|accept\s+this\s+paper|system\s+prompt)\b",
+            re.I,
+        ),
+    )
+
+
+class ImageTextInstructionDetector(RegexChunkDetector):
+    id = "image_text_instruction"
+    title = "Image or alt-text contains model-facing instruction"
+    severity = Severity.HIGH
+    confidence = 0.8
+    remediation = "Audit image text, alt text, and figure OCR before passing the document to a multimodal reviewer."
+    tags = ["image", "multimodal", "prompt-injection"]
+    patterns = (
+        re.compile(
+            r"\b(?:image\s*alt\s*text|alt\s*text|figure\s*text|embedded\s*image\s*text|image\s*ocr)\b"
+            r"[^.\n]{0,160}\b(?:ignore|override|recommend|accept|system\s+prompt)\b",
+            re.I,
+        ),
+    )
+
+
+class FakeCitationDetector(RegexChunkDetector):
+    id = "fake_citation"
+    title = "Instruction to fabricate citations or references"
+    severity = Severity.HIGH
+    confidence = 0.78
+    remediation = "Verify cited evidence against the bibliography and remove instructions to fabricate support."
+    tags = ["citation", "integrity", "ai-slop"]
+    patterns = (
+        re.compile(r"\b(?:fabricate|invent|hallucinate|fake)\s+(?:citations?|references?)\b", re.I),
+        re.compile(r"\bcite\s+(?:nonexistent|fake|fabricated)\s+(?:papers?|citations?|references?)\b", re.I),
+    )
+
+
+class RagContaminationDetector(RegexChunkDetector):
+    id = "rag_contamination"
+    title = "Instruction to contaminate future RAG retrieval"
+    severity = Severity.HIGH
+    confidence = 0.82
+    remediation = "Remove retrieval-triggered instructions before indexing the document into a RAG or agent store."
+    tags = ["rag", "retrieval", "poisoning"]
+    patterns = (
+        re.compile(
+            r"\bwhen\s+(?:this\s+)?(?:chunk|document|context|passage)\s+is\s+retrieved\b"
+            r"[^.\n]{0,180}\b(?:always|ignore|answer|include|claim)\b",
+            re.I,
+        ),
+        re.compile(r"\bpoison\s+(?:the\s+)?(?:rag|retrieval|vector\s+(?:db|database|store))\b", re.I),
+    )
+
+
+class HomoglyphPromptInjectionDetector(RegexChunkDetector):
+    id = "homoglyph_prompt_injection"
+    title = "Mixed-script homoglyph prompt injection"
+    severity = Severity.HIGH
+    confidence = 0.7
+    remediation = "Normalize mixed-script text and inspect suspicious instruction-like fragments manually."
+    tags = ["unicode", "homoglyph", "obfuscation"]
+    patterns = (
+        re.compile(
+            r"[\u0400-\u04ff][^.\n]{0,80}\b(?:system\s+prompt|instructions?|prompt)\b",
+            re.I,
+        ),
+        re.compile(
+            r"\bhomoglyph\s+payload\b[^.\n]{0,160}\b(?:ignore|reveal|system\s+prompt|instructions?)\b",
+            re.I,
+        ),
+    )
+
+
+class RolePlayHijackDetector(RegexChunkDetector):
+    id = "role_play_hijack"
+    title = "Role-play attempt to hijack reviewer authority"
+    severity = Severity.HIGH
+    confidence = 0.78
+    remediation = "Treat role assignment in document content as untrusted text, not as agent instructions."
+    tags = ["role-play", "authority-hijack", "ai-review"]
+    patterns = (
+        re.compile(
+            r"\byou\s+are\s+now\s+(?:the\s+)?(?:senior\s+)?(?:area\s+chair|reviewer|meta[-\s]?reviewer)\b",
+            re.I,
+        ),
+        re.compile(r"\bact\s+as\s+(?:the\s+)?(?:area\s+chair|reviewer|meta[-\s]?reviewer)\b", re.I),
+    )
+
+
+class AISlopDetector(RegexChunkDetector):
+    id = "ai_slop"
+    title = "Unreviewed AI-generated scholarly content signal"
+    severity = Severity.HIGH
+    confidence = 0.68
+    remediation = "Require human verification of boilerplate, placeholders, citations, and experimental evidence."
+    tags = ["ai-slop", "quality", "integrity"]
+    patterns = (
+        re.compile(r"\bas\s+an\s+ai\s+language\s+model\b", re.I),
+        re.compile(r"\bTODO:\s+insert\s+real\s+(?:ablation|experiment|result|citation)", re.I),
+        re.compile(r"\bplaceholder\s+citation\s+needed\b", re.I),
+    )
+
+
+class ToolExfiltrationDetector(RegexChunkDetector):
+    id = "tool_exfiltration"
+    title = "Instruction to exfiltrate secrets through agent tools"
+    severity = Severity.HIGH
+    confidence = 0.82
+    remediation = "Do not grant document content authority to invoke tools or read environment secrets."
+    tags = ["agent", "tools", "secrets"]
+    patterns = (
+        re.compile(
+            r"\b(?:call|use|invoke)\s+(?:available\s+)?tools?\b"
+            r"[^.\n]{0,180}\b(?:environment\s+variables?|api\s*keys?|credentials?|secrets?)\b",
+            re.I,
+        ),
+        re.compile(r"\bread\s+environment\s+variables?\b[^.\n]{0,120}\b(?:leak|print|return|show)\b", re.I),
+    )
+
+
 class InvisibleUnicodeDetector(Detector):
     id = "invisible_unicode"
     title = "Invisible or bidirectional Unicode control characters"
@@ -418,6 +546,14 @@ DETECTORS: dict[str, Detector] = {
         InvisibleUnicodeDetector(),
         LatexHiddenContentDetector(),
         HtmlHiddenContentDetector(),
+        OcrLayerInstructionDetector(),
+        ImageTextInstructionDetector(),
+        FakeCitationDetector(),
+        RagContaminationDetector(),
+        HomoglyphPromptInjectionDetector(),
+        RolePlayHijackDetector(),
+        AISlopDetector(),
+        ToolExfiltrationDetector(),
         PdfHiddenStyleDetector(),
         PdfMetadataInstructionDetector(),
         SuspiciousDensityDetector(),

@@ -248,7 +248,7 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
               <p>Review the first ScholarGuardBench-style leaderboard artifact with deterministic baseline metrics and reproducible synthetic samples.</p>
             </div>
             <div class="tagline">
-              <span class="pill">DocPIBench mini</span>
+              <span class="pill">ScholarGuardBench v0</span>
               <span class="pill">detector recall</span>
               <span class="pill">F1</span>
               <span class="pill">HTML/JSON/MD</span>

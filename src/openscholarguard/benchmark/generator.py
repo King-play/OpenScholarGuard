@@ -34,6 +34,12 @@ def generate_documents(
                 expected_detectors=case.expected_detectors,
                 minimum_severity=case.minimum_severity,
                 family=case.family,
+                tags=case.tags,
+                attack_goal=case.attack_goal,
+                target_workflow=case.target_workflow,
+                visibility=case.visibility,
+                modality=case.modality,
+                source=case.source,
             )
         )
 
