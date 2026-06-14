@@ -7,7 +7,11 @@ from html import escape
 from pathlib import Path
 from typing import Optional, Union
 
-from openscholarguard.benchmark.models import BenchmarkEvaluation, BenchmarkSampleResult
+from openscholarguard.benchmark.models import (
+    BenchmarkEvaluation,
+    BenchmarkSampleResult,
+    Leaderboard,
+)
 
 
 def render_benchmark_text(evaluation: BenchmarkEvaluation) -> str:
@@ -221,6 +225,201 @@ def write_benchmark_report(
     return output_path
 
 
+def render_leaderboard_text(leaderboard: Leaderboard) -> str:
+    lines = [
+        f"{leaderboard.name}: {leaderboard.dataset} {leaderboard.dataset_version}",
+        f"Entries: {len(leaderboard.entries)}",
+        "",
+        "Rank  System                     Version       DetRecall  F1      Accuracy  Samples",
+    ]
+    for index, entry in enumerate(leaderboard.entries, start=1):
+        lines.append(
+            f"{index:<5} "
+            f"{entry.system[:26]:<26} "
+            f"{entry.version[:12]:<12} "
+            f"{entry.metrics.detector_recall:<9.4f} "
+            f"{entry.metrics.f1:<7.4f} "
+            f"{entry.metrics.accuracy:<8.4f} "
+            f"{entry.metrics.total}"
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_leaderboard_markdown(leaderboard: Leaderboard) -> str:
+    lines = [
+        f"# {leaderboard.name} Leaderboard",
+        "",
+        f"- Dataset: `{leaderboard.dataset}`",
+        f"- Version: `{leaderboard.dataset_version}`",
+        f"- Generated: `{leaderboard.generated_at}`",
+        "",
+        "| Rank | System | Version | Detector Recall | F1 | Accuracy | Samples | Runner |",
+        "| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for index, entry in enumerate(leaderboard.entries, start=1):
+        system = _markdown_link(entry.system, entry.url)
+        lines.append(
+            f"| {index} | {system} | `{entry.version}` | "
+            f"{entry.metrics.detector_recall:.4f} | {entry.metrics.f1:.4f} | "
+            f"{entry.metrics.accuracy:.4f} | {entry.metrics.total} | `{entry.runner}` |"
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_leaderboard_html(leaderboard: Leaderboard) -> str:
+    rows = "\n".join(_leaderboard_row(index, entry) for index, entry in enumerate(leaderboard.entries, start=1))
+    payload = escape(json.dumps(leaderboard.to_dict(), indent=2, sort_keys=True))
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(leaderboard.name)} Leaderboard</title>
+  <style>
+    :root {{
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #111827;
+      --muted: #667085;
+      --line: #d8e0eb;
+      --green: #087f5b;
+      --blue: #175cd3;
+      --shadow: 0 24px 70px rgba(17, 24, 39, 0.12);
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(8, 127, 91, 0.15), transparent 25rem),
+        radial-gradient(circle at 85% 0%, rgba(23, 92, 211, 0.12), transparent 24rem),
+        var(--bg);
+      font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }}
+    main {{ width: min(1180px, calc(100vw - 34px)); margin: 42px auto 68px; }}
+    header {{ display: grid; gap: 14px; margin-bottom: 22px; }}
+    h1 {{ margin: 0; font-size: clamp(34px, 5vw, 62px); line-height: 1; letter-spacing: 0; }}
+    .lead {{ max-width: 780px; color: var(--muted); font-size: 17px; }}
+    .summary {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }}
+    .metric {{
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 14px;
+    }}
+    .metric span {{ color: var(--muted); font-weight: 700; }}
+    .metric strong {{ display: block; margin-top: 4px; font-size: 24px; }}
+    .panel {{
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }}
+    table {{ width: 100%; border-collapse: collapse; }}
+    th, td {{ padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }}
+    th {{ background: #f8fafc; color: #475467; font-size: 12px; text-transform: uppercase; }}
+    tr:last-child td {{ border-bottom: 0; }}
+    .rank {{ font-weight: 850; font-size: 20px; }}
+    .system {{ font-weight: 800; }}
+    .system a {{ color: var(--blue); text-decoration: none; }}
+    .system a:hover {{ text-decoration: underline; }}
+    .score {{ color: var(--green); font-weight: 850; }}
+    .muted {{ color: var(--muted); }}
+    code {{
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f8fafc;
+      padding: 2px 7px;
+      font-size: 12px;
+    }}
+    details {{
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 12px 16px;
+    }}
+    pre {{
+      overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      border-radius: 8px;
+      background: #101820;
+      color: #f5f7fa;
+      padding: 14px;
+    }}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>{escape(leaderboard.name)} Leaderboard</h1>
+      <div class="lead">A reproducible ranking for document-borne prompt-injection and AI-review manipulation defenses.</div>
+      <div class="summary">
+        <div class="metric"><span>Dataset</span><strong>{escape(leaderboard.dataset)}</strong></div>
+        <div class="metric"><span>Version</span><strong>{escape(leaderboard.dataset_version)}</strong></div>
+        <div class="metric"><span>Entries</span><strong>{len(leaderboard.entries)}</strong></div>
+        <div class="metric"><span>Generated</span><strong>{escape(leaderboard.generated_at[:10])}</strong></div>
+      </div>
+    </header>
+    <section class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>System</th>
+            <th>Version</th>
+            <th>Detector Recall</th>
+            <th>F1</th>
+            <th>Accuracy</th>
+            <th>Samples</th>
+            <th>Runner</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+        </tbody>
+      </table>
+    </section>
+    <details>
+      <summary>Raw leaderboard JSON</summary>
+      <pre>{payload}</pre>
+    </details>
+  </main>
+</body>
+</html>
+"""
+
+
+def write_leaderboard_report(
+    leaderboard: Leaderboard,
+    output: Union[str, Path],
+    *,
+    fmt: Optional[str] = None,
+) -> Path:
+    output_path = Path(output).expanduser()
+    fmt = fmt or _guess_format(output_path)
+    if fmt == "json":
+        content = leaderboard.to_json()
+    elif fmt == "html":
+        content = render_leaderboard_html(leaderboard)
+    elif fmt in {"md", "markdown"}:
+        content = render_leaderboard_markdown(leaderboard)
+    elif fmt in {"txt", "text"}:
+        content = render_leaderboard_text(leaderboard)
+    else:
+        raise ValueError(f"Unsupported leaderboard report format: {fmt}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(content, encoding="utf-8")
+    return output_path
+
+
 def _html_sample_row(sample: BenchmarkSampleResult) -> str:
     status = "PASS" if sample.passed else "FAIL"
     status_class = "pass" if sample.passed else "fail"
@@ -238,6 +437,35 @@ def _html_sample_row(sample: BenchmarkSampleResult) -> str:
   <td>{escape(additional)}</td>
 </tr>
 """
+
+
+def _leaderboard_row(index: int, entry: object) -> str:
+    from openscholarguard.benchmark.models import LeaderboardEntry
+
+    if not isinstance(entry, LeaderboardEntry):
+        raise TypeError("leaderboard row requires a LeaderboardEntry")
+    system = escape(entry.system)
+    system_html = f'<a href="{escape(entry.url)}">{system}</a>' if entry.url else system
+    return f"""
+<tr>
+  <td class="rank">{index}</td>
+  <td><span class="system">{system_html}</span><br><span class="muted">{escape(entry.notes or "")}</span></td>
+  <td><code>{escape(entry.version)}</code></td>
+  <td class="score">{entry.metrics.detector_recall:.4f}</td>
+  <td>{entry.metrics.f1:.4f}</td>
+  <td>{entry.metrics.accuracy:.4f}</td>
+  <td>{entry.metrics.total}</td>
+  <td><code>{escape(entry.runner)}</code></td>
+</tr>
+"""
+
+
+def _markdown_link(label: str, url: Optional[str]) -> str:
+    if not url:
+        return label.replace("|", "\\|")
+    safe_label = label.replace("|", "\\|")
+    safe_url = url.replace(")", "%29")
+    return f"[{safe_label}]({safe_url})"
 
 
 def _guess_format(path: Path) -> str:

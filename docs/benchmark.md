@@ -52,6 +52,15 @@ Evaluate the built-in dataset directly:
 openscholarguard benchmark evaluate --dataset docpibench-mini
 ```
 
+Write a reusable evaluation JSON:
+
+```bash
+openscholarguard benchmark evaluate \
+  --dataset docpibench-mini \
+  --format json \
+  --output benchmark-output/openscholarguard.eval.json
+```
+
 Evaluate a generated manifest:
 
 ```bash
@@ -70,6 +79,38 @@ The benchmark reports:
 - Per-case pass/fail status.
 - Missing and unexpected detector IDs.
 - Maximum severity and risk score per sample.
+
+## Leaderboard Skeleton
+
+The first leaderboard protocol is intentionally simple: each evaluated system submits a
+small JSON entry derived from an evaluation file. The leaderboard renderer then sorts
+entries by detector recall, F1, and accuracy.
+
+Create a submission entry:
+
+```bash
+openscholarguard benchmark submit \
+  benchmark-output/openscholarguard.eval.json \
+  --system OpenScholarGuard \
+  --version 0.1.0 \
+  --url https://github.com/King-play/OpenScholarGuard \
+  --notes "deterministic scanner baseline" \
+  --output benchmark-output/entries/openscholarguard.json
+```
+
+Render a leaderboard:
+
+```bash
+openscholarguard benchmark leaderboard \
+  benchmark-output/entries \
+  --format html \
+  --output benchmark-output/leaderboard.html
+```
+
+For future model-facing evaluations, keep the same entry schema and replace the runner with
+the evaluated AI reviewer, VLM, RAG stack, or external guardrail system. This lets
+DocPIBench/ScholarGuardBench grow from deterministic scanner baselines into a cross-system
+leaderboard without changing the public report format.
 
 ## Design Notes
 

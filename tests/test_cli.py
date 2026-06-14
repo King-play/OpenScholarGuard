@@ -59,7 +59,57 @@ def test_cli_benchmark_generate_and_evaluate(tmp_path: Path) -> None:
     assert generated == 0
     assert evaluated == 0
     assert report.exists()
-    assert '"detector_recall"' in report.read_text(encoding="utf-8")
+
+
+def test_cli_benchmark_submit_and_leaderboard(tmp_path: Path) -> None:
+    evaluation_path = tmp_path / "evaluation.json"
+    entry_path = tmp_path / "entries" / "openscholarguard.json"
+    leaderboard_path = tmp_path / "leaderboard.md"
+
+    evaluated = main(
+        [
+            "benchmark",
+            "evaluate",
+            "--dataset",
+            "docpibench-mini",
+            "--format",
+            "json",
+            "--output",
+            str(evaluation_path),
+            "--work-dir",
+            str(tmp_path / "work"),
+        ]
+    )
+    submitted = main(
+        [
+            "benchmark",
+            "submit",
+            str(evaluation_path),
+            "--system",
+            "OpenScholarGuard",
+            "--version",
+            "0.1.0",
+            "--output",
+            str(entry_path),
+        ]
+    )
+    rendered = main(
+        [
+            "benchmark",
+            "leaderboard",
+            str(entry_path),
+            "--format",
+            "md",
+            "--output",
+            str(leaderboard_path),
+        ]
+    )
+
+    assert evaluated == 0
+    assert submitted == 0
+    assert rendered == 0
+    assert '"detector_recall"' in entry_path.read_text(encoding="utf-8")
+    assert "OpenScholarGuard" in leaderboard_path.read_text(encoding="utf-8")
 
 
 def test_cli_init_policy(tmp_path: Path) -> None:

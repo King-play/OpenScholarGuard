@@ -21,7 +21,18 @@ from openscholarguard.benchmark.generator import generate_builtin_dataset
 from openscholarguard.benchmark.leaderboard import (
     render_benchmark_markdown,
     render_benchmark_text,
+    render_leaderboard_html,
+    render_leaderboard_markdown,
+    render_leaderboard_text,
     write_benchmark_report,
+    write_leaderboard_report,
+)
+from openscholarguard.benchmark.submissions import (
+    build_leaderboard,
+    create_leaderboard_entry,
+    load_benchmark_evaluation,
+    load_leaderboard_entries,
+    write_leaderboard_entry,
 )
 from openscholarguard.demo import generate_demo
 from openscholarguard.doctor import render_doctor_text, run_doctor
@@ -258,6 +269,40 @@ def _add_benchmark_parser(subparsers: argparse._SubParsersAction[argparse.Argume
     )
     evaluate_parser.add_argument("--output", "-o", help="write benchmark report to file")
     evaluate_parser.set_defaults(func=_cmd_benchmark_evaluate)
+
+    submit_parser = benchmark_subparsers.add_parser(
+        "submit",
+        help="convert a benchmark evaluation JSON file into a leaderboard entry",
+    )
+    submit_parser.add_argument("evaluation", help="benchmark evaluation JSON produced by benchmark evaluate")
+    submit_parser.add_argument("--system", required=True, help="system or model name")
+    submit_parser.add_argument("--version", required=True, help="system version or run label")
+    submit_parser.add_argument("--runner", default="openscholarguard", help="runner implementation")
+    submit_parser.add_argument("--url", help="optional system, paper, or run URL")
+    submit_parser.add_argument("--notes", help="short notes for the leaderboard")
+    submit_parser.add_argument("--output", "-o", required=True, help="leaderboard entry JSON output")
+    submit_parser.set_defaults(func=_cmd_benchmark_submit)
+
+    leaderboard_parser = benchmark_subparsers.add_parser(
+        "leaderboard",
+        help="render a leaderboard from one or more submission entries",
+    )
+    leaderboard_parser.add_argument(
+        "entries",
+        nargs="+",
+        help="leaderboard entry JSON files or directories containing entry JSON files",
+    )
+    leaderboard_parser.add_argument("--name", default="ScholarGuardBench", help="leaderboard title")
+    leaderboard_parser.add_argument("--dataset", help="filter to this dataset")
+    leaderboard_parser.add_argument("--dataset-version", help="filter to this dataset version")
+    leaderboard_parser.add_argument(
+        "--format",
+        choices=["text", "json", "html", "md"],
+        default="text",
+        help="stdout/report format",
+    )
+    leaderboard_parser.add_argument("--output", "-o", help="write leaderboard report to file")
+    leaderboard_parser.set_defaults(func=_cmd_benchmark_leaderboard)
 
 
 def _add_demo_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -591,6 +636,41 @@ def _cmd_benchmark_evaluate(args: argparse.Namespace) -> int:
         print(render_benchmark_text(evaluation), end="")
 
     return 0 if all(sample.passed for sample in evaluation.samples) else 1
+
+
+def _cmd_benchmark_submit(args: argparse.Namespace) -> int:
+    evaluation = load_benchmark_evaluation(args.evaluation)
+    entry = create_leaderboard_entry(
+        evaluation,
+        system=args.system,
+        version=args.version,
+        runner=args.runner,
+        url=args.url,
+        notes=args.notes,
+    )
+    output = write_leaderboard_entry(entry, args.output)
+    print(f"Leaderboard entry written to: {output}")
+    return 0
+
+
+def _cmd_benchmark_leaderboard(args: argparse.Namespace) -> int:
+    leaderboard = build_leaderboard(
+        load_leaderboard_entries(args.entries),
+        name=args.name,
+        dataset=args.dataset,
+        dataset_version=args.dataset_version,
+    )
+    if args.output:
+        write_leaderboard_report(leaderboard, args.output, fmt=args.format)
+    elif args.format == "json":
+        print(leaderboard.to_json())
+    elif args.format == "html":
+        print(render_leaderboard_html(leaderboard))
+    elif args.format == "md":
+        print(render_leaderboard_markdown(leaderboard))
+    else:
+        print(render_leaderboard_text(leaderboard), end="")
+    return 0
 
 
 def _cmd_profiles(args: argparse.Namespace) -> int:

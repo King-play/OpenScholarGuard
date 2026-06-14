@@ -128,6 +128,43 @@ class BenchmarkEvaluation:
         return json.dumps(self.to_dict(), indent=indent, sort_keys=True)
 
 
+@dataclass(frozen=True)
+class LeaderboardEntry:
+    """A reproducible leaderboard submission for one benchmarked system."""
+
+    system: str
+    version: str
+    dataset: str
+    dataset_version: str
+    profile: str
+    fail_on: Severity
+    metrics: BenchmarkMetrics
+    submitted_at: str
+    runner: str = "openscholarguard"
+    url: Optional[str] = None
+    notes: Optional[str] = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return _json_ready(asdict(self))
+
+
+@dataclass(frozen=True)
+class Leaderboard:
+    """A sorted collection of benchmark entries."""
+
+    name: str
+    dataset: str
+    dataset_version: str
+    generated_at: str
+    entries: list[LeaderboardEntry]
+
+    def to_dict(self) -> dict[str, Any]:
+        return _json_ready(asdict(self))
+
+    def to_json(self, *, indent: int = 2) -> str:
+        return json.dumps(self.to_dict(), indent=indent, sort_keys=True)
+
+
 def write_manifest(samples: list[GeneratedSample], output: str | Path) -> Path:
     output_path = Path(output).expanduser()
     output_path.parent.mkdir(parents=True, exist_ok=True)

@@ -231,7 +231,9 @@ Useful commands:
 ```bash
 openscholarguard benchmark list
 openscholarguard benchmark generate --output-dir benchmark-output
-openscholarguard benchmark evaluate --dataset docpibench-mini --format text
+openscholarguard benchmark evaluate --dataset docpibench-mini --format json --output benchmark-output/openscholarguard.eval.json
+openscholarguard benchmark submit benchmark-output/openscholarguard.eval.json --system OpenScholarGuard --version 0.1.0 --output benchmark-output/entries/openscholarguard.json
+openscholarguard benchmark leaderboard benchmark-output/entries --format html --output benchmark-output/leaderboard.html
 openscholarguard benchmark evaluate --manifest benchmark-output/manifest.json --format html --output benchmark.html
 ```
 

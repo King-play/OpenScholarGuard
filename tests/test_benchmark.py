@@ -9,7 +9,18 @@ from openscholarguard.benchmark.leaderboard import (
     render_benchmark_html,
     render_benchmark_markdown,
     render_benchmark_text,
+    render_leaderboard_html,
+    render_leaderboard_markdown,
+    render_leaderboard_text,
     write_benchmark_report,
+    write_leaderboard_report,
+)
+from openscholarguard.benchmark.submissions import (
+    build_leaderboard,
+    create_leaderboard_entry,
+    load_benchmark_evaluation,
+    load_leaderboard_entries,
+    write_leaderboard_entry,
 )
 from openscholarguard.models import Severity
 
@@ -81,3 +92,53 @@ def test_write_benchmark_report(tmp_path: Path) -> None:
 
     assert report.exists()
     assert "Benchmark Report" in report.read_text(encoding="utf-8")
+
+
+def test_leaderboard_entry_roundtrip_and_renderers(tmp_path: Path) -> None:
+    dataset = get_builtin_dataset("docpibench-mini")
+    evaluation = evaluate_benchmark(dataset, work_dir=tmp_path / "work", fail_on=Severity.HIGH)
+    entry = create_leaderboard_entry(
+        evaluation,
+        system="OpenScholarGuard",
+        version="0.1.0",
+        url="https://github.com/King-play/OpenScholarGuard",
+        notes="deterministic scanner baseline",
+    )
+    entry_path = write_leaderboard_entry(entry, tmp_path / "entries" / "openscholarguard.json")
+
+    entries = load_leaderboard_entries([entry_path])
+    leaderboard = build_leaderboard(entries)
+    text = render_leaderboard_text(leaderboard)
+    markdown = render_leaderboard_markdown(leaderboard)
+    html = render_leaderboard_html(leaderboard)
+
+    assert leaderboard.entries[0].system == "OpenScholarGuard"
+    assert "ScholarGuardBench" in text
+    assert "OpenScholarGuard" in markdown
+    assert "<table>" in html
+
+
+def test_write_leaderboard_report(tmp_path: Path) -> None:
+    dataset = get_builtin_dataset("docpibench-mini")
+    evaluation = evaluate_benchmark(dataset, work_dir=tmp_path / "work", fail_on=Severity.HIGH)
+    entry = create_leaderboard_entry(evaluation, system="OpenScholarGuard", version="0.1.0")
+    leaderboard = build_leaderboard([entry])
+    report = tmp_path / "leaderboard.html"
+
+    write_leaderboard_report(leaderboard, report)
+
+    assert report.exists()
+    assert "Leaderboard" in report.read_text(encoding="utf-8")
+
+
+def test_load_benchmark_evaluation(tmp_path: Path) -> None:
+    dataset = get_builtin_dataset("docpibench-mini")
+    evaluation = evaluate_benchmark(dataset, work_dir=tmp_path / "work", fail_on=Severity.HIGH)
+    evaluation_path = tmp_path / "evaluation.json"
+    evaluation_path.write_text(evaluation.to_json(), encoding="utf-8")
+
+    loaded = load_benchmark_evaluation(evaluation_path)
+
+    assert loaded.dataset == evaluation.dataset
+    assert loaded.metrics.f1 == evaluation.metrics.f1
+    assert len(loaded.samples) == len(evaluation.samples)
