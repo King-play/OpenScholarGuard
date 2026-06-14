@@ -107,6 +107,22 @@ openscholarguard benchmark leaderboard \
   --output benchmark-output/leaderboard.html
 ```
 
+Create a complete publication bundle in one command:
+
+```bash
+openscholarguard benchmark publish --output-dir benchmark-publication
+```
+
+The publication bundle includes:
+
+- `evaluation.json`, `evaluation.md`, and `evaluation.html`.
+- `entries/*.json` leaderboard submission files.
+- `leaderboard.json`, `leaderboard.md`, and `leaderboard.html`.
+- `generated-samples/` with the reproducible synthetic documents and manifest.
+
+The CI workflow uploads this directory as a `benchmark-publication` artifact, so private
+repositories can review benchmark results before publishing a public leaderboard.
+
 For future model-facing evaluations, keep the same entry schema and replace the runner with
 the evaluated AI reviewer, VLM, RAG stack, or external guardrail system. This lets
 DocPIBench/ScholarGuardBench grow from deterministic scanner baselines into a cross-system

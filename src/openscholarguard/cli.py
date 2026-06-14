@@ -27,6 +27,7 @@ from openscholarguard.benchmark.leaderboard import (
     write_benchmark_report,
     write_leaderboard_report,
 )
+from openscholarguard.benchmark.publisher import publish_builtin_benchmark
 from openscholarguard.benchmark.submissions import (
     build_leaderboard,
     create_leaderboard_entry,
@@ -303,6 +304,26 @@ def _add_benchmark_parser(subparsers: argparse._SubParsersAction[argparse.Argume
     )
     leaderboard_parser.add_argument("--output", "-o", help="write leaderboard report to file")
     leaderboard_parser.set_defaults(func=_cmd_benchmark_leaderboard)
+
+    publish_parser = benchmark_subparsers.add_parser(
+        "publish",
+        help="create a shareable benchmark evaluation and leaderboard bundle",
+    )
+    publish_parser.add_argument("--dataset", choices=sorted(BUILTIN_DATASETS), default="docpibench-mini")
+    publish_parser.add_argument("--profile", choices=sorted(PROFILES), default="ai-review")
+    publish_parser.add_argument(
+        "--fail-on",
+        choices=["info", "low", "medium", "high", "critical"],
+        default="high",
+    )
+    publish_parser.add_argument("--system", default="OpenScholarGuard", help="system or model name")
+    publish_parser.add_argument("--version", default=__version__, help="system version or run label")
+    publish_parser.add_argument("--runner", default="openscholarguard", help="runner implementation")
+    publish_parser.add_argument("--url", default="https://github.com/King-play/OpenScholarGuard")
+    publish_parser.add_argument("--notes", default="deterministic scanner baseline")
+    publish_parser.add_argument("--leaderboard-name", default="ScholarGuardBench")
+    publish_parser.add_argument("--output-dir", "-o", default="benchmark-publication")
+    publish_parser.set_defaults(func=_cmd_benchmark_publish)
 
 
 def _add_demo_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -670,6 +691,26 @@ def _cmd_benchmark_leaderboard(args: argparse.Namespace) -> int:
         print(render_leaderboard_markdown(leaderboard))
     else:
         print(render_leaderboard_text(leaderboard), end="")
+    return 0
+
+
+def _cmd_benchmark_publish(args: argparse.Namespace) -> int:
+    publication = publish_builtin_benchmark(
+        args.output_dir,
+        dataset=args.dataset,
+        profile=args.profile,
+        fail_on=Severity(args.fail_on),
+        system=args.system,
+        version=args.version,
+        runner=args.runner,
+        url=args.url,
+        notes=args.notes,
+        leaderboard_name=args.leaderboard_name,
+    )
+    print(f"Benchmark publication written to: {publication.output_dir}")
+    print(f"Evaluation JSON: {publication.evaluation_json}")
+    print(f"Leaderboard HTML: {publication.leaderboard_html}")
+    print(f"Submission entry: {publication.entry_json}")
     return 0
 
 

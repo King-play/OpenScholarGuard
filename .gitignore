@@ -17,6 +17,7 @@ reports/
 demo-output/
 .openscholarguard-benchmark/
 benchmark-output/
+benchmark-publication/
 openscholarguard.sarif
 openscholarguard.junit.xml
 audit.html

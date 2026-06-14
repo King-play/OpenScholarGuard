@@ -112,6 +112,17 @@ def test_cli_benchmark_submit_and_leaderboard(tmp_path: Path) -> None:
     assert "OpenScholarGuard" in leaderboard_path.read_text(encoding="utf-8")
 
 
+def test_cli_benchmark_publish(tmp_path: Path) -> None:
+    output_dir = tmp_path / "publication"
+
+    exit_code = main(["benchmark", "publish", "--output-dir", str(output_dir)])
+
+    assert exit_code == 0
+    assert (output_dir / "evaluation.json").exists()
+    assert (output_dir / "leaderboard.html").exists()
+    assert any((output_dir / "entries").glob("*.json"))
+
+
 def test_cli_init_policy(tmp_path: Path) -> None:
     policy = tmp_path / ".openscholarguard.json"
 

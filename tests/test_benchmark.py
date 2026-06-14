@@ -15,6 +15,7 @@ from openscholarguard.benchmark.leaderboard import (
     write_benchmark_report,
     write_leaderboard_report,
 )
+from openscholarguard.benchmark.publisher import publish_builtin_benchmark
 from openscholarguard.benchmark.submissions import (
     build_leaderboard,
     create_leaderboard_entry,
@@ -142,3 +143,16 @@ def test_load_benchmark_evaluation(tmp_path: Path) -> None:
     assert loaded.dataset == evaluation.dataset
     assert loaded.metrics.f1 == evaluation.metrics.f1
     assert len(loaded.samples) == len(evaluation.samples)
+
+
+def test_publish_builtin_benchmark_writes_publication_bundle(tmp_path: Path) -> None:
+    publication = publish_builtin_benchmark(tmp_path / "publication")
+
+    assert publication.evaluation_json.exists()
+    assert publication.evaluation_markdown.exists()
+    assert publication.evaluation_html.exists()
+    assert publication.entry_json.exists()
+    assert publication.leaderboard_json.exists()
+    assert publication.leaderboard_markdown.exists()
+    assert publication.leaderboard_html.exists()
+    assert "OpenScholarGuard" in publication.leaderboard_markdown.read_text(encoding="utf-8")
