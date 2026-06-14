@@ -26,13 +26,24 @@ It checks:
 python -m openscholarguard demo --output-dir demo-output --overwrite
 ```
 
-It then uploads `demo-output` to GitHub Pages. Enable Pages in the repository settings and
-select GitHub Actions as the source.
+The workflow always uploads `demo-output` as a downloadable Actions artifact named
+`openscholarguard-demo`. This gives private repositories a shareable preview without
+publishing a public site.
 
-The workflow is skipped while the repository is private. This avoids failing private
-development pushes before GitHub Pages has been enabled. When you are ready to publish the
-online demo, make the repository public, enable Pages with GitHub Actions as the source,
-then run the workflow again.
+The GitHub Pages deployment job is skipped while the repository is private. This avoids
+failing private development pushes before GitHub Pages has been enabled. When you are ready
+to publish the online demo:
+
+1. Make the repository public.
+2. Open `Settings -> Pages`.
+3. Set `Build and deployment -> Source` to `GitHub Actions`.
+4. Run the `Demo Pages` workflow again, or push to `main`.
+
+The default public URL will be:
+
+```text
+https://king-play.github.io/OpenScholarGuard/
+```
 
 ## Release Check
 

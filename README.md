@@ -1,9 +1,19 @@
 # OpenScholarGuard
 
-OpenScholarGuard is an open-source security and trust layer for AI-assisted peer review,
-scholarly document ingestion, and document agents. It scans papers and other documents for
-prompt injection, hidden instructions, review manipulation, encoded payloads, invisible
-Unicode, suspicious PDF styling, and risky PDF metadata.
+![CI](https://github.com/King-play/OpenScholarGuard/actions/workflows/ci.yml/badge.svg)
+![Demo Pages](https://github.com/King-play/OpenScholarGuard/actions/workflows/pages.yml/badge.svg)
+![Release Check](https://github.com/King-play/OpenScholarGuard/actions/workflows/release.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+Security and trust layer for AI-assisted peer review, scholarly document ingestion, and
+document agents. OpenScholarGuard scans papers and other documents for prompt injection,
+hidden instructions, review manipulation, encoded payloads, invisible Unicode, suspicious
+PDF styling, and risky PDF metadata before they reach AI reviewers or RAG pipelines.
+
+> Public demo URL after release: <https://king-play.github.io/OpenScholarGuard/>
+
+![OpenScholarGuard static demo preview](docs/assets/demo-preview.png)
 
 The first-stage goal is practical: give researchers, conference organizers, RAG builders,
 and AI-review systems a clean CLI and Python library that can be installed, tested, and
@@ -12,6 +22,30 @@ extended.
 The second-stage goal is reproducibility: provide a small benchmark harness that can
 generate synthetic document prompt-injection cases, evaluate scanner behavior, and render a
 shareable leaderboard-style report.
+
+## At A Glance
+
+- **Scan** hidden model-facing instructions in Markdown, text, and PDFs.
+- **Sanitize** risky fragments before AI-assisted review or RAG ingestion.
+- **Ingest** guarded chunks with provenance, detector metadata, and blocking policy.
+- **Verify** custom rule packs with embedded positive and negative tests.
+- **Demo** the full workflow as a static site with ten reproducible attack examples.
+- **Benchmark** scanner behavior with `docpibench-mini` and leaderboard-style reports.
+
+## Try The Demo
+
+Generate the offline demo locally:
+
+```bash
+pip install -e .
+openscholarguard demo --output-dir demo-output --overwrite
+```
+
+Open `demo-output/index.html`.
+
+The same bundle can be published with GitHub Pages once the repository is public and Pages
+is enabled. While the repository is private, the Pages workflow still builds a downloadable
+demo artifact for review. See [docs/github.md](docs/github.md) for the release path.
 
 ## Why This Exists
 
@@ -189,7 +223,8 @@ openscholarguard benchmark evaluate --format html --output benchmark.html
 OpenScholarGuard includes `docpibench-mini`, a reproducible synthetic benchmark for
 document-borne prompt injection and AI-review manipulation. It covers clean controls,
 direct instruction override, review manipulation, RAG exfiltration, encoded payloads,
-invisible Unicode, hidden HTML, hidden LaTeX, and multilingual review pressure.
+invisible Unicode, hidden HTML, hidden LaTeX, multilingual review pressure, local policy
+violations, and citation manipulation.
 
 Useful commands:
 

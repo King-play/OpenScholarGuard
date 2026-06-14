@@ -16,11 +16,10 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event.repository.private == false }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install
@@ -29,14 +28,24 @@ jobs:
           python -m pip install -e .
       - name: Generate static demo
         run: python -m openscholarguard demo --output-dir demo-output --overwrite
+      - name: Upload reviewable demo artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: openscholarguard-demo
+          path: demo-output
+          if-no-files-found: error
+          retention-days: 14
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        if: ${{ github.event.repository.private == false }}
+        uses: actions/configure-pages@v6
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        if: ${{ github.event.repository.private == false }}
+        uses: actions/upload-pages-artifact@v4
         with:
           path: demo-output
 
   deploy:
+    if: ${{ github.event.repository.private == false }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -45,4 +54,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

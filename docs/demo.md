@@ -34,6 +34,18 @@ The generated bundle includes:
 - `attack-gallery/`: generated sample documents for the attack gallery.
 - `injected_paper.md`: copied synthetic sample.
 
+## Repository Preview
+
+The repository README uses `docs/assets/demo-preview.png` as the first-screen demo preview.
+Regenerate it after changing the demo layout:
+
+```powershell
+$chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+$demo = [System.Uri]::new((Resolve-Path demo-output\index.html).Path).AbsoluteUri
+& $chrome --headless --disable-gpu --hide-scrollbars --window-size=1440,1040 `
+  --screenshot="$((Resolve-Path docs\assets).Path)\demo-preview.png" $demo
+```
+
 ## Custom Inputs
 
 ```bash
