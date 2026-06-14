@@ -15,6 +15,12 @@ PDF styling, and risky PDF metadata before they reach AI reviewers or RAG pipeli
 
 ![OpenScholarGuard static demo preview](docs/assets/demo-preview.png)
 
+Demo screenshots and GIF/MP4 source frames are reproducible with:
+
+```bash
+python scripts/capture_demo_assets.py
+```
+
 The first-stage goal is practical: give researchers, conference organizers, RAG builders,
 and AI-review systems a clean CLI and Python library that can be installed, tested, and
 extended.

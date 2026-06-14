@@ -16,6 +16,8 @@ env/
 reports/
 demo-output/
 site-output/
+docs/assets/demo-preview.gif
+docs/assets/demo-preview.mp4
 .openscholarguard-benchmark/
 benchmark-output/
 benchmark-publication/

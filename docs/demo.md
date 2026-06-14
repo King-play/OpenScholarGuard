@@ -37,14 +37,32 @@ The generated bundle includes:
 ## Repository Preview
 
 The repository README uses `docs/assets/demo-preview.png` as the first-screen demo preview.
-Regenerate it after changing the demo layout:
+Regenerate the preview, project-site preview, leaderboard preview, and ordered animation
+frames after changing the demo layout:
 
-```powershell
-$chrome = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-$demo = [System.Uri]::new((Resolve-Path demo-output\index.html).Path).AbsoluteUri
-& $chrome --headless --disable-gpu --hide-scrollbars --window-size=1440,1040 `
-  --screenshot="$((Resolve-Path docs\assets).Path)\demo-preview.png" $demo
+```bash
+python scripts/capture_demo_assets.py
 ```
+
+The script writes:
+
+- `docs/assets/demo-preview.png`
+- `docs/assets/site-preview.png`
+- `docs/assets/leaderboard-preview.png`
+- `docs/assets/demo-frames/*.png`
+
+It requires a local Chrome or Chromium executable. On Windows it automatically checks
+`C:\Program Files\Google\Chrome\Application\chrome.exe`; otherwise pass `--chrome`.
+
+Optional GIF and video assembly:
+
+```bash
+magick -delay 140 -loop 0 docs/assets/demo-frames/*.png docs/assets/demo-preview.gif
+ffmpeg -framerate 1 -pattern_type glob -i "docs/assets/demo-frames/*.png" -vf "fps=12,scale=1440:-1" docs/assets/demo-preview.mp4
+```
+
+Keep generated GIF/MP4 files reasonably small before committing them. The PNG frames are
+the source-of-truth capture artifacts.
 
 ## Custom Inputs
 
