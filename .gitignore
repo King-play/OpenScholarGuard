@@ -15,6 +15,7 @@ env/
 .env
 reports/
 demo-output/
+site-output/
 .openscholarguard-benchmark/
 benchmark-output/
 benchmark-publication/

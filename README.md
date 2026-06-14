@@ -95,6 +95,12 @@ Generate a shareable static demo:
 openscholarguard demo --output-dir demo-output --overwrite
 ```
 
+Generate the full static project site with demo and benchmark leaderboard:
+
+```bash
+openscholarguard site --output-dir site-output --overwrite
+```
+
 Check your local setup:
 
 ```bash
@@ -254,7 +260,8 @@ sanitized output, ingestion chunks, and rule-pack verification artifacts. See
 [docs/demo.md](docs/demo.md) for details.
 
 The repository also includes a GitHub Pages workflow that can publish this generated demo
-from `main`. See [docs/github.md](docs/github.md) for setup and release-check details.
+and benchmark site from `main`. See [docs/github.md](docs/github.md) for setup and
+release-check details.
 
 ## Audit Mode
 

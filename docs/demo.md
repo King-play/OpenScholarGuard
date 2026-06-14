@@ -62,6 +62,17 @@ documentation builds, and GitHub Pages publishing.
 
 ## GitHub Pages
 
-You can publish the generated directory as a static site. For example, copy the contents of
-`demo-output` to a `gh-pages` branch or to any static hosting provider. The page has no
-runtime dependencies and does not make network requests.
+You can publish the generated directory as a static site. For a project-level GitHub Pages
+bundle that includes both the demo and benchmark leaderboard, run:
+
+```bash
+openscholarguard site --output-dir site-output --overwrite
+```
+
+The generated `site-output` directory contains:
+
+- `index.html`: project entrypoint.
+- `demo/`: the full static demo bundle.
+- `benchmark/`: evaluation and leaderboard publication artifacts.
+
+The page has no runtime dependencies and does not make network requests.

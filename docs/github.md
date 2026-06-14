@@ -20,15 +20,19 @@ It checks:
 
 ## Demo Pages
 
-`.github/workflows/pages.yml` generates the static demo with:
+`.github/workflows/pages.yml` generates the static project site with:
 
 ```bash
-python -m openscholarguard demo --output-dir demo-output --overwrite
+python -m openscholarguard site --output-dir site-output --overwrite
 ```
 
-The workflow always uploads `demo-output` as a downloadable Actions artifact named
-`openscholarguard-demo`. This gives private repositories a shareable preview without
-publishing a public site.
+The workflow always uploads `site-output` as a downloadable Actions artifact named
+`openscholarguard-site`. This gives private repositories a shareable preview without
+publishing a public site. The site includes:
+
+- `index.html`: project entrypoint.
+- `demo/`: static demo, reports, artifacts, and attack gallery.
+- `benchmark/`: leaderboard, evaluation report, submission entry, and generated samples.
 
 The GitHub Pages deployment job is skipped while the repository is private. This avoids
 failing private development pushes before GitHub Pages has been enabled. When you are ready

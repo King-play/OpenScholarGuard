@@ -58,6 +58,7 @@ from openscholarguard.sanitizer import sanitize_path
 from openscholarguard.scanner import scan_path, should_fail
 from openscholarguard.server import serve
 from openscholarguard.server.openapi import openapi_schema
+from openscholarguard.site import generate_site
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -88,6 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_rules_parser(subparsers)
     _add_init_policy_parser(subparsers)
     _add_openapi_parser(subparsers)
+    _add_site_parser(subparsers)
     _add_serve_parser(subparsers)
     _add_profiles_parser(subparsers)
     _add_doctor_parser(subparsers)
@@ -228,6 +230,13 @@ def _add_openapi_parser(subparsers: argparse._SubParsersAction[argparse.Argument
     parser = subparsers.add_parser("openapi", help="print or write the OpenAPI schema")
     parser.add_argument("--output", "-o", help="write schema to this JSON file")
     parser.set_defaults(func=_cmd_openapi)
+
+
+def _add_site_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+    parser = subparsers.add_parser("site", help="generate a static project site bundle")
+    parser.add_argument("--output-dir", "-o", default="site-output", help="directory for site artifacts")
+    parser.add_argument("--overwrite", action="store_true", help="overwrite an existing site directory")
+    parser.set_defaults(func=_cmd_site)
 
 
 def _add_benchmark_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
@@ -522,6 +531,15 @@ def _cmd_demo(args: argparse.Namespace) -> int:
     print(f"Demo written to: {artifacts.output_dir}")
     print(f"Open: {artifacts.index_html}")
     print(f"Scan JSON: {artifacts.scan_json}")
+    return 0
+
+
+def _cmd_site(args: argparse.Namespace) -> int:
+    artifacts = generate_site(args.output_dir, overwrite=args.overwrite)
+    print(f"Site written to: {artifacts.output_dir}")
+    print(f"Open: {artifacts.index_html}")
+    print(f"Demo: {artifacts.demo.index_html}")
+    print(f"Leaderboard: {artifacts.benchmark.leaderboard_html}")
     return 0
 
 

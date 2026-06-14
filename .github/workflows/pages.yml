@@ -26,13 +26,13 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -e .
-      - name: Generate static demo
-        run: python -m openscholarguard demo --output-dir demo-output --overwrite
-      - name: Upload reviewable demo artifact
+      - name: Generate static site
+        run: python -m openscholarguard site --output-dir site-output --overwrite
+      - name: Upload reviewable site artifact
         uses: actions/upload-artifact@v6
         with:
-          name: openscholarguard-demo
-          path: demo-output
+          name: openscholarguard-site
+          path: site-output
           if-no-files-found: error
           retention-days: 14
       - name: Configure Pages
@@ -42,7 +42,7 @@ jobs:
         if: ${{ github.event.repository.private == false }}
         uses: actions/upload-pages-artifact@v4
         with:
-          path: demo-output
+          path: site-output
 
   deploy:
     if: ${{ github.event.repository.private == false }}
