@@ -29,6 +29,11 @@ python -m openscholarguard demo --output-dir demo-output --overwrite
 It then uploads `demo-output` to GitHub Pages. Enable Pages in the repository settings and
 select GitHub Actions as the source.
 
+The workflow is skipped while the repository is private. This avoids failing private
+development pushes before GitHub Pages has been enabled. When you are ready to publish the
+online demo, make the repository public, enable Pages with GitHub Actions as the source,
+then run the workflow again.
+
 ## Release Check
 
 `.github/workflows/release.yml` runs on `v*` tags and manual dispatch. It performs the
