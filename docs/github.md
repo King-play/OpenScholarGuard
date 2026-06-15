@@ -32,6 +32,7 @@ publishing a public site. The site includes:
 
 - `index.html`: project entrypoint.
 - `demo/`: static demo, reports, artifacts, and attack gallery.
+- `pdf-gallery/`: synthetic PDF attack cases, screenshots, scan reports, and deep-audit reports.
 - `benchmark/`: leaderboard, evaluation report, submission entry, and generated samples.
 
 The GitHub Pages deployment job is skipped while the repository is private. This avoids
@@ -54,8 +55,23 @@ https://king-play.github.io/OpenScholarGuard/
 ## Release Check
 
 `.github/workflows/release.yml` runs on `v*` tags and manual dispatch. It performs the
-quality gates, verifies demo generation, builds the package, and uploads the distribution
-artifacts for release review.
+quality gates, verifies demo generation, builds the package, uploads the distribution
+artifacts for release review, creates a GitHub release on tags, and publishes to PyPI when
+trusted publishing is configured for the repository.
+
+## Repository Audit Action
+
+`.github/workflows/openscholarguard-audit.yml` demonstrates the SARIF-producing audit flow
+for pull requests. The repository also ships `action.yml` as a composite action so other
+projects can run:
+
+```yaml
+- uses: King-play/OpenScholarGuard@v0.1.0
+  with:
+    targets: "."
+    profile: "ai-review"
+    fail-on: "high"
+```
 
 ## Local Preflight
 

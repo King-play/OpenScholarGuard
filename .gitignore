@@ -20,6 +20,9 @@ docs/assets/demo-preview.mp4
 .openscholarguard-benchmark/
 benchmark-output/
 benchmark-publication/
+model-eval/
+model-eval-publication/
+pdf-gallery-output/
 openscholarguard.sarif
 openscholarguard.junit.xml
 audit.html
@@ -31,3 +34,4 @@ clean.md
 clean.manifest.json
 .DS_Store
 Thumbs.db
+readme.txt

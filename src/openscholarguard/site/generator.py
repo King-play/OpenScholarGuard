@@ -9,6 +9,7 @@ from typing import Union
 
 from openscholarguard.benchmark.publisher import BenchmarkPublication, publish_builtin_benchmark
 from openscholarguard.demo import DemoArtifacts, generate_demo
+from openscholarguard.pdf_gallery import PdfGalleryArtifacts, generate_pdf_attack_gallery
 from openscholarguard.site.html import render_site_index
 
 
@@ -20,8 +21,10 @@ class SiteArtifacts:
     index_html: Path
     demo_dir: Path
     benchmark_dir: Path
+    pdf_gallery_dir: Path
     demo: DemoArtifacts
     benchmark: BenchmarkPublication
+    pdf_gallery: PdfGalleryArtifacts
 
     def to_dict(self) -> dict[str, str]:
         return {
@@ -29,8 +32,10 @@ class SiteArtifacts:
             "index_html": str(self.index_html),
             "demo_dir": str(self.demo_dir),
             "benchmark_dir": str(self.benchmark_dir),
+            "pdf_gallery_dir": str(self.pdf_gallery_dir),
             "demo_index_html": str(self.demo.index_html),
             "benchmark_leaderboard_html": str(self.benchmark.leaderboard_html),
+            "pdf_gallery_index_html": str(self.pdf_gallery.index_html),
         }
 
 
@@ -50,16 +55,23 @@ def generate_site(
 
     demo_dir = output_path / "demo"
     benchmark_dir = output_path / "benchmark"
+    pdf_gallery_dir = output_path / "pdf-gallery"
     demo = generate_demo(demo_dir, overwrite=True)
     benchmark = publish_builtin_benchmark(benchmark_dir)
+    pdf_gallery = generate_pdf_attack_gallery(pdf_gallery_dir, overwrite=True)
     index_html = output_path / "index.html"
-    index_html.write_text(render_site_index(demo=demo, benchmark=benchmark), encoding="utf-8")
+    index_html.write_text(
+        render_site_index(demo=demo, benchmark=benchmark, pdf_gallery=pdf_gallery),
+        encoding="utf-8",
+    )
 
     return SiteArtifacts(
         output_dir=output_path,
         index_html=index_html,
         demo_dir=demo_dir,
         benchmark_dir=benchmark_dir,
+        pdf_gallery_dir=pdf_gallery_dir,
         demo=demo,
         benchmark=benchmark,
+        pdf_gallery=pdf_gallery,
     )

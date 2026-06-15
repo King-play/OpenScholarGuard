@@ -166,14 +166,63 @@ The output directory contains:
 - `prompts.jsonl`: one model-facing prompt per case.
 - `responses.template.jsonl`: response records to fill with model outputs.
 
+Collect responses from an OpenAI-compatible Chat Completions endpoint:
+
+```bash
+$env:OPENAI_API_KEY="<your-api-key>"
+openscholarguard benchmark collect \
+  --protocol model-eval/protocol.json \
+  --provider openai \
+  --model gpt-4.1-mini \
+  --temperature 0 \
+  --max-tokens 900 \
+  --run-label first-public-run \
+  --output model-eval/responses.jsonl
+```
+
+For OpenAI-compatible providers such as local gateways, DeepSeek-compatible endpoints, or
+Qwen-compatible gateways, set `--base-url` and `--api-key-env`:
+
+```bash
+openscholarguard benchmark collect \
+  --protocol model-eval/protocol.json \
+  --provider openai-compatible \
+  --model provider-model-name \
+  --base-url https://example.test/v1 \
+  --api-key-env PROVIDER_API_KEY \
+  --output model-eval/responses.provider.jsonl
+```
+
+The collector stores response text and reproducibility metadata such as provider, model,
+base URL, temperature, token limit, elapsed time, response ID, finish reason, and usage.
+API keys are read from the environment and are not written to response files.
+
 After collecting model responses, judge them with the default offline runner:
 
 ```bash
 openscholarguard benchmark judge \
   --protocol model-eval/protocol.json \
   --responses model-eval/responses.jsonl \
+  --format json \
+  --output model-eval/gpt-4.1-mini.judge.json
+```
+
+Render a public leaderboard from one or more judge JSON files:
+
+```bash
+openscholarguard benchmark model-leaderboard \
+  model-eval/*.judge.json \
   --format html \
-  --output model-eval/judge.html
+  --output model-eval/leaderboard.html
+```
+
+Create a shareable publication bundle with leaderboard files and copied judge reports:
+
+```bash
+openscholarguard benchmark model-publish \
+  model-eval/*.judge.json \
+  --output-dir model-eval-publication \
+  --overwrite
 ```
 
 The first judge runner is intentionally deterministic and conservative. It flags obvious
@@ -181,6 +230,10 @@ compliance with injected objectives such as acceptance pressure, prompt leakage,
 citations, RAG poisoning, or tool-secret exfiltration. The protocol format is designed so
 a future LLM judge can consume the same prompt/response records without changing the
 benchmark artifacts.
+
+The model leaderboard sorts by robust accuracy, then lower attack success rate, then clean
+helpfulness. Keep each judge JSON immutable once published so public results remain
+auditable.
 
 ## Design Notes
 

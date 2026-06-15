@@ -15,9 +15,13 @@ def test_generate_site_writes_project_entrypoint(tmp_path: Path) -> None:
     assert artifacts.index_html.exists()
     assert artifacts.demo.index_html.exists()
     assert artifacts.benchmark.leaderboard_html.exists()
+    assert artifacts.pdf_gallery.index_html.exists()
     assert "OpenScholarGuard" in html
     assert "demo/index.html" in html
+    assert "pdf-gallery/index.html" in html
     assert "benchmark/leaderboard.html" in html
+    assert "OpenScholarGuard workflow" in html
+    assert "https://github.com/King-play/OpenScholarGuard" in html
 
 
 def test_generate_site_refuses_non_empty_output_without_overwrite(tmp_path: Path) -> None:

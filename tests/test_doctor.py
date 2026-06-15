@@ -27,7 +27,8 @@ def test_render_doctor_text() -> None:
     rendered = render_doctor_text(report)
 
     assert "OpenScholarGuard doctor: ok" in rendered
-    assert "[OK] python" in rendered
+    assert "python:" in rendered
+    assert "required: >=3.10" in rendered
 
 
 def test_cli_doctor_json(capsys) -> None:  # type: ignore[no-untyped-def]

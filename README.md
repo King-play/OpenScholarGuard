@@ -17,19 +17,29 @@ PDF styling, and risky PDF metadata before they reach AI reviewers or RAG pipeli
 
 Static preview: [docs/assets/demo-preview.png](docs/assets/demo-preview.png)
 
+## 60-Second Proof
+
+OpenScholarGuard is meant to be inspectable before anyone installs a dependency:
+
+- **Online site:** the GitHub Pages build publishes the demo, benchmark evaluation, and leaderboard.
+- **Offline demo:** `openscholarguard demo --output-dir demo-output --overwrite` creates a self-contained HTML dashboard.
+- **Benchmark bundle:** `openscholarguard benchmark publish --output-dir benchmark-publication` emits reproducible evaluation and leaderboard artifacts.
+- **CI gate:** the repository checks linting, typing, tests, rule-pack verification, doctor checks, demo generation, and package build.
+
 Demo screenshots and GIF/MP4 source frames are reproducible with:
 
 ```bash
 python scripts/capture_demo_assets.py
 ```
 
-The first-stage goal is practical: give researchers, conference organizers, RAG builders,
-and AI-review systems a clean CLI and Python library that can be installed, tested, and
-extended.
+The immediate release goal is practical: give researchers, conference organizers, RAG
+builders, and AI-review systems a clean scanner, sanitizer, ingestion guard, and report
+pipeline they can test today.
 
-The second-stage goal is reproducibility: provide a small benchmark harness that can
-generate synthetic document prompt-injection cases, evaluate scanner behavior, and render a
-shareable leaderboard-style report.
+The flagship goal is reproducibility: turn document-borne prompt injection for scholarly
+workflows into a visible benchmark with public artifacts, model responses, PDF attack
+examples, and integration paths. See [ROADMAP.md](ROADMAP.md) and
+[docs/launch.md](docs/launch.md).
 
 ## At A Glance
 
@@ -40,7 +50,10 @@ shareable leaderboard-style report.
 - **Demo** the full workflow as a static site with ten reproducible attack examples.
 - **Benchmark** scanner behavior with `scholarguardbench-v0`, `docpibench-mini`, and leaderboard-style reports.
 - **Judge** model responses with a reproducible prompt/response protocol skeleton.
+- **Collect** model responses from OpenAI-compatible Chat Completions endpoints for public benchmark runs.
 - **Deep-audit PDFs** for OCR candidates, image-heavy pages, hidden spans, and visual/text-layer mismatch.
+- **Gallery** reproducible PDF attack cases with screenshots, scan reports, and deep-audit reports.
+- **Integrate** through GitHub Actions, LangChain-style transformers, and LlamaIndex-style postprocessors.
 - **Draft papers** with generated arXiv skeletons and benchmark tables.
 
 ## Try The Demo
@@ -112,6 +125,12 @@ Generate the full static project site with demo and benchmark leaderboard:
 openscholarguard site --output-dir site-output --overwrite
 ```
 
+Generate the synthetic PDF attack gallery:
+
+```bash
+openscholarguard pdf-gallery --output-dir pdf-gallery-output --overwrite
+```
+
 Check your local setup:
 
 ```bash
@@ -140,7 +159,10 @@ Generate model-evaluation prompts and judge filled responses:
 
 ```bash
 openscholarguard benchmark protocol --dataset scholarguardbench-v0 --output-dir model-eval
-openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl
+openscholarguard benchmark collect --protocol model-eval/protocol.json --model gpt-4.1-mini --output model-eval/responses.jsonl
+openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl --format json --output model-eval/gpt-4.1-mini.judge.json
+openscholarguard benchmark model-leaderboard model-eval/*.judge.json --format html --output model-eval/leaderboard.html
+openscholarguard benchmark model-publish model-eval/*.judge.json --output-dir model-eval-publication --overwrite
 ```
 
 Audit a directory for CI or batch ingestion:
@@ -280,7 +302,11 @@ openscholarguard benchmark leaderboard benchmark-output/entries --format html --
 openscholarguard benchmark publish --output-dir benchmark-publication
 openscholarguard benchmark evaluate --manifest benchmark-output/manifest.json --format html --output benchmark.html
 openscholarguard benchmark protocol --output-dir model-eval
+openscholarguard benchmark collect --protocol model-eval/protocol.json --model gpt-4.1-mini --output model-eval/responses.jsonl
 openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl --format md --output model-eval/judge.md
+openscholarguard benchmark judge --protocol model-eval/protocol.json --responses model-eval/responses.jsonl --format json --output model-eval/gpt-4.1-mini.judge.json
+openscholarguard benchmark model-leaderboard model-eval/*.judge.json --format html --output model-eval/leaderboard.html
+openscholarguard benchmark model-publish model-eval/*.judge.json --output-dir model-eval-publication --overwrite
 ```
 
 See [docs/benchmark.md](docs/benchmark.md) for details.
@@ -297,6 +323,20 @@ openscholarguard pdf-audit paper.pdf --enable-ocr --format json --output reports
 ```
 
 See [docs/pdf-audit.md](docs/pdf-audit.md) for details.
+
+## PDF Attack Gallery
+
+Generate ten synthetic PDF cases with source PDFs, screenshots, scan reports, and deep-audit
+reports:
+
+```bash
+openscholarguard pdf-gallery --output-dir pdf-gallery-output --overwrite
+```
+
+The full static project site includes the same gallery under `pdf-gallery/`. The cases are
+synthetic and designed for demos, regression tests, and paper figures.
+
+See [docs/pdf-gallery.md](docs/pdf-gallery.md) for the case list and artifact layout.
 
 ## Paper Skeleton
 
@@ -325,6 +365,29 @@ sanitized output, ingestion chunks, and rule-pack verification artifacts. See
 The repository also includes a GitHub Pages workflow that can publish this generated demo
 and benchmark site from `main`. See [docs/github.md](docs/github.md) for setup and
 release-check details.
+
+## Integrations
+
+OpenScholarGuard ships dependency-light entry points for common adoption paths:
+
+- `action.yml`: composite GitHub Action for SARIF-producing document audits.
+- `openscholarguard.integrations.langchain.OpenScholarGuardTransformer`
+- `openscholarguard.integrations.llamaindex.OpenScholarGuardNodePostprocessor`
+
+See [docs/integrations.md](docs/integrations.md) for examples.
+
+## Launch Readiness
+
+The engineering MVP is already useful, but the project becomes easier to cite, star, and
+adopt once the public evidence is complete:
+
+- **Public demo:** GitHub Pages URL, README GIF, project-site preview, and downloadable CI artifact.
+- **Real model evaluation:** fixed prompts, model versions, response JSONL, judge output, and public leaderboard.
+- **PDF attack gallery:** reproducible PDFs for white text, transparent spans, tiny text, metadata injection, OCR-layer text, image text, encoded payloads, and Unicode obfuscation.
+- **Integrations:** GitHub Action, LangChain/LlamaIndex ingestion hooks, promptfoo/PyRIT adapters, and OpenReview-style workflow examples.
+- **Paper track:** threat model, benchmark design, experiments, case studies, limitations, and an arXiv-ready draft.
+
+See [docs/launch.md](docs/launch.md) for the release checklist.
 
 ## Audit Mode
 
@@ -424,14 +487,15 @@ pytest
 
 ## Roadmap
 
-- PDF visual diff between human-visible and model-visible text.
-- OCR-layer and image-text injection detection.
-- Expanded benchmark suite for AI reviewer prompt-injection robustness.
-- Hosted and self-hosted audit dashboards for batch document review.
-- Native connectors for LangChain, LlamaIndex, Dify, and vector database ingestion.
-- Authenticated service deployment and queue-backed batch API.
-- Integrations with OpenReview-style workflows, LangChain, LlamaIndex, promptfoo, and PyRIT.
-- Hosted and self-hosted batch scanning API.
+See [ROADMAP.md](ROADMAP.md) for the current flagship plan.
+
+Near-term focus:
+
+- Publish and verify the GitHub Pages demo experience.
+- Record the first real model-evaluation run and render a public leaderboard.
+- Build the PDF attack gallery with visual evidence and detector reports.
+- Add the first ecosystem entry points: GitHub Action, LangChain, and LlamaIndex.
+- Expand the generated paper skeleton into an arXiv-ready systems paper.
 
 ## Security Model
 

@@ -8,9 +8,15 @@ from pathlib import Path
 
 from openscholarguard.benchmark.publisher import BenchmarkPublication
 from openscholarguard.demo.generator import DemoArtifacts
+from openscholarguard.pdf_gallery import PdfGalleryArtifacts
 
 
-def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -> str:
+def render_site_index(
+    *,
+    demo: DemoArtifacts,
+    benchmark: BenchmarkPublication,
+    pdf_gallery: PdfGalleryArtifacts,
+) -> str:
     """Render the GitHub Pages project entrypoint."""
 
     return f"""<!doctype html>
@@ -126,6 +132,22 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
       font-weight: 800;
     }}
     .button.primary {{ border-color: var(--dark); background: var(--dark); color: #ffffff; }}
+    .workflow {{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      max-width: 760px;
+      margin-top: 22px;
+    }}
+    .step {{
+      min-height: 84px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.82);
+      padding: 12px;
+    }}
+    .step strong {{ display: block; font-size: 14px; }}
+    .step span {{ display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 680; }}
     .proof {{
       display: grid;
       gap: 12px;
@@ -192,6 +214,10 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
     @media (max-width: 860px) {{
       .hero, .grid {{ grid-template-columns: 1fr; }}
       .hero {{ min-height: auto; }}
+      .workflow {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+    }}
+    @media (max-width: 560px) {{
+      .workflow {{ grid-template-columns: 1fr; }}
     }}
   </style>
 </head>
@@ -201,8 +227,10 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
       <div class="brand"><span class="mark">OSG</span> OpenScholarGuard</div>
       <div>
         <a href="demo/index.html">Demo</a>
+        <a href="pdf-gallery/index.html">PDF Gallery</a>
         <a href="benchmark/leaderboard.html">Leaderboard</a>
         <a href="benchmark/evaluation.html">Evaluation</a>
+        <a href="https://github.com/King-play/OpenScholarGuard">GitHub</a>
       </div>
     </nav>
     <header class="hero">
@@ -215,10 +243,16 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
           <a class="button" href="benchmark/leaderboard.html">View leaderboard</a>
           <a class="button" href="benchmark/evaluation.html">Inspect evaluation</a>
         </div>
+        <div class="workflow" aria-label="OpenScholarGuard workflow">
+          <div class="step"><strong>Scan</strong><span>Find hidden instructions, Unicode tricks, encoded payloads, and PDF styling risks.</span></div>
+          <div class="step"><strong>Sanitize</strong><span>Remove or isolate high-risk fragments before AI review or RAG ingestion.</span></div>
+          <div class="step"><strong>Ingest</strong><span>Emit guarded chunks with provenance, detector metadata, and blocking policy.</span></div>
+          <div class="step"><strong>Benchmark</strong><span>Publish reproducible samples, evaluation reports, and leaderboard entries.</span></div>
+        </div>
       </div>
       <aside class="proof" aria-label="Generated site artifacts">
         <div class="metric"><span>Demo findings</span><strong>{escape(_count_from_json(demo.scan_json, "summary", "total_findings"))}</strong></div>
-        <div class="metric"><span>Attack examples</span><strong>10</strong></div>
+        <div class="metric"><span>PDF gallery cases</span><strong>{len(pdf_gallery.cases)}</strong></div>
         <div class="metric"><span>Benchmark samples</span><strong>{escape(_count_from_json(benchmark.evaluation_json, "metrics", "total"))}</strong></div>
         <div class="metric"><span>Leaderboard entries</span><strong>{escape(_count_entries(benchmark.leaderboard_json))}</strong></div>
       </aside>
@@ -240,6 +274,18 @@ def render_site_index(*, demo: DemoArtifacts, benchmark: BenchmarkPublication) -
               <span class="pill">sanitize</span>
               <span class="pill">RAG guard</span>
               <span class="pill">attack gallery</span>
+            </div>
+          </a>
+          <a class="card" href="pdf-gallery/index.html">
+            <div>
+              <h3>PDF Attack Gallery</h3>
+              <p>Inspect synthetic PDFs for white text, transparent spans, tiny text, off-page payloads, metadata injection, image-heavy pages, Unicode controls, and encoded payloads.</p>
+            </div>
+            <div class="tagline">
+              <span class="pill">PDF</span>
+              <span class="pill">screenshots</span>
+              <span class="pill">scan reports</span>
+              <span class="pill">deep audit</span>
             </div>
           </a>
           <a class="card" href="benchmark/leaderboard.html">

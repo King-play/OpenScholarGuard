@@ -17,6 +17,8 @@ from openscholarguard.rules.registry import load_rule_pack
 from openscholarguard.rules.verification import verify_rule_pack
 from openscholarguard.scanner import scan_path
 
+MINIMUM_PYTHON = (3, 10)
+
 
 @dataclass(frozen=True)
 class DoctorCheck:
@@ -76,13 +78,21 @@ def render_doctor_text(report: DoctorReport) -> str:
 
 def _python_version_check() -> DoctorCheck:
     version = platform.python_version()
-    minimum = (3, 9)
-    status = "ok" if sys.version_info >= minimum else "error"
+    status = "ok" if sys.version_info >= MINIMUM_PYTHON else "warning"
+    required = ".".join(str(part) for part in MINIMUM_PYTHON)
     return DoctorCheck(
         name="python",
         status=status,
-        message="Python version is supported." if status == "ok" else "Python 3.9 or newer is required.",
-        details={"version": version, "implementation": platform.python_implementation()},
+        message=(
+            "Python version is supported."
+            if status == "ok"
+            else f"Project metadata targets Python {required} or newer."
+        ),
+        details={
+            "version": version,
+            "required": f">={required}",
+            "implementation": platform.python_implementation(),
+        },
     )
 
 

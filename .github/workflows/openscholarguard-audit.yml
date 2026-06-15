@@ -1,0 +1,38 @@
+name: OpenScholarGuard Audit
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install OpenScholarGuard
+        run: |
+          python -m pip install -U pip
+          python -m pip install -e ".[pdf]"
+      - name: Run document audit
+        run: |
+          python -m openscholarguard audit . \
+            --format sarif \
+            --output openscholarguard.sarif
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: openscholarguard.sarif
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: openscholarguard-audit
+          path: openscholarguard.sarif
+          if-no-files-found: error
