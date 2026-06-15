@@ -403,7 +403,7 @@ def render_site_index(
           <a class="card" href="benchmark/leaderboard.html">
             <div>
               <h3>Benchmark Leaderboard</h3>
-              <p>Review the first ScholarGuardBench-style leaderboard artifact with deterministic baseline metrics and reproducible synthetic samples.</p>
+              <p>Review the first ScholarGuardBench-style leaderboard artifact with 36 task-style samples, deterministic baseline metrics, and reproducible manifests.</p>
             </div>
             <div class="tagline">
               <span class="pill">ScholarGuardBench v0</span>
@@ -430,7 +430,7 @@ def render_site_index(
       <section class="workflow-band">
         <div class="callout">
           <strong>Next milestone: real model results</strong>
-          <p>The synthetic dataset is already generated. The next public proof point is running API-backed model evaluations and publishing a dated leaderboard.</p>
+          <p>The synthetic dataset is already generated as a task-style benchmark. The next public proof point is running API-backed model evaluations and publishing a dated leaderboard.</p>
         </div>
         <div class="workflow">
           <div class="stage"><strong>Collect</strong><span>Save model responses as JSONL.</span></div>

@@ -48,7 +48,7 @@ examples, and integration paths. See [ROADMAP.md](ROADMAP.md) and
 - **Ingest** guarded chunks with provenance, detector metadata, and blocking policy.
 - **Verify** custom rule packs with embedded positive and negative tests.
 - **Demo** the full workflow as a static site with ten reproducible attack examples.
-- **Benchmark** scanner behavior with `scholarguardbench-v0`, `docpibench-mini`, and leaderboard-style reports.
+- **Benchmark** scanner behavior with the 36-task `scholarguardbench-v0`, `docpibench-mini`, and leaderboard-style reports.
 - **Judge** model responses with a reproducible prompt/response protocol skeleton.
 - **Collect** model responses from OpenAI-compatible Chat Completions endpoints for public benchmark runs.
 - **Deep-audit PDFs** for OCR candidates, image-heavy pages, hidden spans, and visual/text-layer mismatch.
@@ -154,6 +154,11 @@ Run the built-in benchmark:
 ```bash
 openscholarguard benchmark evaluate --dataset scholarguardbench-v0
 ```
+
+`scholarguardbench-v0` now ships as a task-style synthetic dataset with 36 cases, 5
+clean controls, 31 attack or integrity-risk tasks, stable task IDs, split metadata,
+difficulty labels, verifier contracts, and expected actions. See
+[docs/dataset-card.md](docs/dataset-card.md) for the dataset card.
 
 Generate model-evaluation prompts and judge filled responses:
 

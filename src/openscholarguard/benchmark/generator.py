@@ -40,6 +40,11 @@ def generate_documents(
                 visibility=case.visibility,
                 modality=case.modality,
                 source=case.source,
+                task_id=case.task_id,
+                split=case.split,
+                difficulty=case.difficulty,
+                verifier=case.verifier,
+                expected_action=case.expected_action,
             )
         )
 

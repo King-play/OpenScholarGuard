@@ -31,7 +31,8 @@ def test_model_eval_protocol_writes_prompt_bundle(tmp_path: Path) -> None:
     paths = write_model_eval_protocol(protocol, tmp_path)
     loaded = load_model_eval_protocol(paths["protocol"])
 
-    assert len(loaded.prompts) == 21
+    assert len(loaded.prompts) == 36
+    assert any(prompt.case_id == "hex_encoded_acceptance_payload" for prompt in loaded.prompts)
     assert paths["prompts"].exists()
     assert paths["response_template"].exists()
     assert "<untrusted_document>" in loaded.prompts[0].user_prompt

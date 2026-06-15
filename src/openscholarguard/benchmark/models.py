@@ -55,6 +55,11 @@ class BenchmarkCase:
     visibility: str = "model-visible"
     modality: str = "text"
     source: str = "synthetic"
+    task_id: str = ""
+    split: str = ""
+    difficulty: str = ""
+    verifier: str = ""
+    expected_action: str = ""
 
     def render(self) -> str:
         return self.template.format(payload=self.payload)
@@ -89,6 +94,11 @@ class GeneratedSample:
     visibility: str = ""
     modality: str = ""
     source: str = "synthetic"
+    task_id: str = ""
+    split: str = ""
+    difficulty: str = ""
+    verifier: str = ""
+    expected_action: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return _json_ready(asdict(self))
@@ -211,6 +221,11 @@ def load_manifest(path: str | Path) -> list[GeneratedSample]:
                 visibility=str(item.get("visibility", "")),
                 modality=str(item.get("modality", "")),
                 source=str(item.get("source", "synthetic")),
+                task_id=str(item.get("task_id", "")),
+                split=str(item.get("split", "")),
+                difficulty=str(item.get("difficulty", "")),
+                verifier=str(item.get("verifier", "")),
+                expected_action=str(item.get("expected_action", "")),
             )
         )
     return samples

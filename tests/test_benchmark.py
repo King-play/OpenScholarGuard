@@ -45,9 +45,9 @@ def test_scholarguardbench_v0_has_formal_metadata() -> None:
     families = {case.family.value for case in dataset.cases}
 
     assert dataset.version == "0.1.0"
-    assert len(dataset.cases) == 21
-    assert len([case for case in dataset.cases if case.expected_malicious]) == 19
-    assert len([case for case in dataset.cases if not case.expected_malicious]) == 2
+    assert len(dataset.cases) == 36
+    assert len([case for case in dataset.cases if case.expected_malicious]) == 31
+    assert len([case for case in dataset.cases if not case.expected_malicious]) == 5
     assert {
         "ai_slop",
         "fake_citation",
@@ -63,6 +63,11 @@ def test_scholarguardbench_v0_has_formal_metadata() -> None:
     assert all(case.target_workflow for case in dataset.cases)
     assert all(case.visibility for case in dataset.cases)
     assert all(case.modality for case in dataset.cases)
+    assert all(case.task_id.startswith("sgb-v0-") for case in dataset.cases)
+    assert {case.split for case in dataset.cases} == {"dev"}
+    assert {"easy", "medium", "hard"}.issuperset({case.difficulty for case in dataset.cases})
+    assert {case.verifier for case in dataset.cases} == {"detector-match"}
+    assert {case.expected_action for case in dataset.cases} == {"allow", "flag"}
 
 
 def test_generate_documents_writes_manifest(tmp_path: Path) -> None:
@@ -103,7 +108,7 @@ def test_evaluate_benchmark_passes_scholarguardbench_v0(tmp_path: Path) -> None:
 
     evaluation = evaluate_benchmark(dataset, work_dir=tmp_path, fail_on=Severity.HIGH)
 
-    assert evaluation.metrics.total == 21
+    assert evaluation.metrics.total == 36
     assert evaluation.metrics.recall == 1.0
     assert evaluation.metrics.detector_recall == 1.0
     assert evaluation.metrics.false_negative == 0
