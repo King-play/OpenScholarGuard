@@ -32,6 +32,8 @@ def render_demo_html(
     artifact_cards = "\n".join(_artifact_card(label, path) for label, path in artifacts.items())
     before_text = _readable_snippet(scan.findings[0].snippet if scan.findings else "", limit=760)
     after_text = _readable_snippet(sanitized.text, limit=900)
+    hero_before_text = _readable_snippet(scan.findings[0].snippet if scan.findings else "", limit=170)
+    hero_after_text = _readable_snippet(sanitized.text, limit=190)
     chunk_preview = _readable_snippet(
         json.dumps(ingest.chunks[0].to_dict() if ingest.chunks else {}, indent=2, sort_keys=True),
         limit=1100,
@@ -69,9 +71,7 @@ def render_demo_html(
       margin: 0;
       color: var(--ink);
       background:
-        radial-gradient(circle at 18% 8%, rgba(8, 127, 91, 0.18), transparent 26rem),
-        radial-gradient(circle at 82% 2%, rgba(23, 92, 211, 0.11), transparent 25rem),
-        linear-gradient(180deg, #ffffff 0%, var(--bg) 46%, #ffffff 100%);
+        linear-gradient(180deg, #f8fbff 0%, #ffffff 18%, var(--bg) 62%, #ffffff 100%);
       font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
     a {{ color: inherit; }}
@@ -119,11 +119,11 @@ def render_demo_html(
     .nav-links a:hover {{ border-color: var(--line); background: #ffffff; }}
     .hero {{
       display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(450px, 1.08fr);
+      grid-template-columns: minmax(0, 0.86fr) minmax(500px, 1.14fr);
       align-items: center;
       gap: 34px;
-      min-height: min(820px, calc(100vh - 74px));
-      padding: 54px 0 62px;
+      min-height: min(780px, calc(100vh - 74px));
+      padding: 46px 0 58px;
     }}
     .eyebrow {{
       display: inline-flex;
@@ -148,8 +148,8 @@ def render_demo_html(
     h1 {{
       max-width: 820px;
       margin: 0;
-      font-size: clamp(44px, 7vw, 84px);
-      line-height: 0.95;
+      font-size: clamp(42px, 6.5vw, 74px);
+      line-height: 0.98;
       letter-spacing: 0;
     }}
     .lead {{
@@ -212,7 +212,7 @@ def render_demo_html(
       border: 1px solid rgba(216, 224, 235, 0.95);
       border-radius: 8px;
       background: rgba(255, 255, 255, 0.94);
-      box-shadow: var(--shadow);
+      box-shadow: 0 30px 80px rgba(17, 24, 39, 0.14);
       transform: translateY(10px);
     }}
     .workspace-top {{
@@ -220,16 +220,21 @@ def render_demo_html(
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      padding: 14px 16px;
+      padding: 13px 16px;
       border-bottom: 1px solid var(--line);
-      background: rgba(248, 250, 252, 0.88);
+      background: #0b1220;
+      color: #ffffff;
+    }}
+    .workspace-top small {{
+      display: block;
+      margin-top: 2px;
+      color: #b7c2d4;
+      font-size: 12px;
     }}
     .traffic {{ display: flex; gap: 7px; }}
-    .traffic span {{ width: 10px; height: 10px; border-radius: 999px; background: #cbd5e1; }}
+    .traffic span {{ width: 10px; height: 10px; border-radius: 999px; background: #d8e0eb; }}
     .workspace-body {{
-      display: grid;
-      grid-template-columns: 178px minmax(0, 1fr);
-      min-height: 476px;
+      min-height: 496px;
     }}
     .rail {{
       border-right: 1px solid var(--line);
@@ -260,7 +265,7 @@ def render_demo_html(
       border-radius: 999px;
       background: currentColor;
     }}
-    .workspace-main {{ padding: 18px 18px 16px; }}
+    .workspace-main {{ padding: 18px; }}
     .risk-summary {{
       display: grid;
       grid-template-columns: 130px minmax(0, 1fr);
@@ -271,6 +276,11 @@ def render_demo_html(
       border-radius: 8px;
       background: linear-gradient(135deg, #ffffff, #f8fafc);
       box-shadow: 0 14px 40px rgba(17, 24, 39, 0.06);
+    }}
+    .risk-summary.compact {{
+      grid-template-columns: 104px minmax(0, 1fr);
+      padding: 14px;
+      background: linear-gradient(135deg, #fff7f5, #ffffff 58%, #f8fafc);
     }}
     .gauge {{
       width: 118px;
@@ -283,6 +293,12 @@ def render_demo_html(
       color: var(--red);
       font-size: 34px;
       font-weight: 860;
+    }}
+    .risk-summary.compact .gauge {{
+      width: 94px;
+      height: 94px;
+      font-size: 28px;
+      box-shadow: inset 0 0 0 11px #ffffff, 0 10px 26px rgba(194, 31, 18, 0.14);
     }}
     .risk-summary h2 {{ margin: 0 0 8px; font-size: 24px; line-height: 1.12; }}
     .risk-summary p {{ margin: 0; color: var(--muted); }}
@@ -300,6 +316,38 @@ def render_demo_html(
     }}
     .mini span {{ color: var(--muted); font-size: 12px; font-weight: 760; }}
     .mini strong {{ display: block; margin-top: 3px; font-size: 23px; line-height: 1; }}
+    .evidence-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }}
+    .evidence-card {{
+      min-height: 170px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 13px;
+    }}
+    .evidence-card.danger {{ border-color: rgba(194, 31, 18, 0.24); background: #fffafa; }}
+    .evidence-card.clean {{ border-color: rgba(8, 127, 91, 0.24); background: #fbfffd; }}
+    .evidence-label {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }}
+    .evidence-card p {{
+      margin: 11px 0 0;
+      color: #344054;
+      font: 12px/1.65 var(--mono);
+      overflow-wrap: anywhere;
+    }}
     .pipeline {{
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -491,11 +539,11 @@ def render_demo_html(
       .hero {{ min-height: auto; }}
       .workspace-body, .risk-summary {{ grid-template-columns: 1fr; }}
       .rail {{ display: none; }}
-      .mini-metrics, .pipeline, .hero-proof {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+      .mini-metrics, .pipeline, .hero-proof, .evidence-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
     }}
     @media (max-width: 640px) {{
       .nav {{ align-items: flex-start; flex-direction: column; }}
-      .mini-metrics, .pipeline, .hero-proof {{ grid-template-columns: 1fr; }}
+      .mini-metrics, .pipeline, .hero-proof, .evidence-grid {{ grid-template-columns: 1fr; }}
       .finding {{ grid-template-columns: 1fr; }}
       .gauge {{ width: 116px; height: 116px; }}
     }}
@@ -508,14 +556,15 @@ def render_demo_html(
       <div class="nav-links">
         <a href="#findings">Findings</a>
         <a href="#ingestion">Ingestion</a>
+        <a href="#attack-gallery">Attack examples</a>
         <a href="scan.html">Full report</a>
       </div>
     </nav>
     <header class="hero">
       <div>
         <div class="eyebrow"><span class="pulse"></span> Live static demo - generated from real scanner output</div>
-        <h1>See what an AI reviewer would miss.</h1>
-        <p class="lead">OpenScholarGuard turns a suspicious paper into reviewable evidence, sanitized text, and safe RAG chunks before it reaches an AI-assisted review workflow.</p>
+        <h1>Screen papers before AI review.</h1>
+        <p class="lead">OpenScholarGuard converts a suspicious submission into an auditable evidence packet before it reaches a reviewer model: findings, sanitized text, guarded chunks, and rule-pack proof.</p>
         <div class="hero-proof">
           <div class="proof"><strong>{scan.summary.risk_score}/100</strong><span>risk score</span></div>
           <div class="proof"><strong>{scan.summary.total_findings}</strong><span>findings</span></div>
@@ -530,22 +579,26 @@ def render_demo_html(
       </div>
       <aside class="workspace" aria-label="OpenScholarGuard safety workspace">
         <div class="workspace-top">
+          <div><strong>OpenScholarGuard intake packet</strong><small>Generated from the local scanner, sanitizer, and RAG guard</small></div>
           <div class="traffic"><span></span><span></span><span></span></div>
-          <strong>Review intake gate</strong>
         </div>
         <div class="workspace-body">
-          <div class="rail">
-            <div class="rail-item active"><span>Scan</span><span class="dot"></span></div>
-            <div class="rail-item"><span>Sanitize</span><span class="dot"></span></div>
-            <div class="rail-item"><span>Ingest</span><span class="dot"></span></div>
-            <div class="rail-item"><span>Verify</span><span class="dot"></span></div>
-          </div>
           <div class="workspace-main">
-            <div class="risk-summary">
+            <div class="risk-summary compact">
               <div class="gauge">{scan.summary.risk_score}</div>
               <div>
                 <h2>{escape(scan.summary.max_severity.value.upper())} risk detected</h2>
                 <p>{scan.summary.total_findings} signals found in a synthetic scholarly submission, including hidden review manipulation and prompt-injection content.</p>
+              </div>
+            </div>
+            <div class="evidence-grid">
+              <div class="evidence-card danger">
+                <div class="evidence-label"><span>Detected payload</span><span class="badge critical">blocked</span></div>
+                <p>{escape(hero_before_text)}</p>
+              </div>
+              <div class="evidence-card clean">
+                <div class="evidence-label"><span>Sanitized handoff</span><span class="badge pass">ready</span></div>
+                <p>{escape(hero_after_text)}</p>
               </div>
             </div>
             <div class="mini-metrics">
@@ -592,7 +645,7 @@ def render_demo_html(
             <p>The demo keeps the workflow concrete: unsafe fragment, sanitized output, and a provenance-rich chunk ready for a document pipeline.</p>
           </div>
         </div>
-        <div class="section-head">
+        <div id="attack-gallery" class="section-head">
           <div>
             <h2>Ten synthetic attack examples</h2>
             <p>Open each generated sample to inspect the document-borne attack pattern. Every case is synthetic, reproducible, and safe to publish.</p>
