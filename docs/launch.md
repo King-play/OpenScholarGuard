@@ -5,7 +5,7 @@ release that people can try, cite, and integrate.
 
 ## Public Demo
 
-- Confirm `Demo Pages` runs successfully on `main`.
+- Confirm `Pages` runs successfully on `main`.
 - Make the repository public when ready for the first public demo.
 - Verify the public URL:
 

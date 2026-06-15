@@ -36,9 +36,10 @@ The generated bundle includes:
 
 ## Repository Preview
 
-The repository README uses `docs/assets/demo-preview.png` as the first-screen demo preview.
-Regenerate the preview, project-site preview, leaderboard preview, and ordered animation
-frames after changing the demo layout:
+The repository README uses `docs/assets/demo-preview.png` and `docs/assets/demo-preview.gif`
+as the first-screen public-site preview. Regenerate the preview, project-site preview,
+leaderboard preview, and ordered animation frames after changing the public site, benchmark
+pages, or local workflow bundle:
 
 ```bash
 python scripts/capture_demo_assets.py
@@ -89,8 +90,9 @@ openscholarguard site --output-dir site-output --overwrite
 
 The generated `site-output` directory contains:
 
-- `index.html`: project entrypoint.
-- `demo/`: the full static demo bundle.
-- `benchmark/`: evaluation and leaderboard publication artifacts.
+- `index.html`: public project entrypoint and primary workflow preview.
+- `demo/`: local workflow bundle kept as a generated artifact, not the primary public entrypoint.
+- `benchmark/`: ScholarGuardBench evaluation and leaderboard publication artifacts.
+- `pdf-gallery/`: synthetic PDF attack gallery.
 
 The page has no runtime dependencies and does not make network requests.

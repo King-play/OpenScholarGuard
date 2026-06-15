@@ -1,7 +1,7 @@
 # GitHub Workflows
 
 OpenScholarGuard includes GitHub automation for quality gates, package validation, and
-static demo publishing.
+static project-site publishing.
 
 ## CI
 
@@ -18,7 +18,7 @@ It checks:
 - Static demo generation.
 - Source and wheel package build.
 
-## Demo Pages
+## Pages
 
 `.github/workflows/pages.yml` generates the static project site with:
 
@@ -30,19 +30,19 @@ The workflow always uploads `site-output` as a downloadable Actions artifact nam
 `openscholarguard-site`. This gives private repositories a shareable preview without
 publishing a public site. The site includes:
 
-- `index.html`: project entrypoint.
-- `demo/`: static demo, reports, artifacts, and attack gallery.
+- `index.html`: public project entrypoint and primary workflow preview.
+- `demo/`: local workflow bundle, reports, artifacts, and attack gallery.
 - `pdf-gallery/`: synthetic PDF attack cases, screenshots, scan reports, and deep-audit reports.
-- `benchmark/`: leaderboard, evaluation report, submission entry, and generated samples.
+- `benchmark/`: ScholarGuardBench leaderboard, evaluation report, submission entry, and generated samples.
 
 The GitHub Pages deployment job is skipped while the repository is private. This avoids
-failing private development pushes before a public demo is intended. When you are ready to
-publish the online demo:
+failing private development pushes before a public site is intended. When you are ready to
+publish the online site:
 
 1. Make the repository public.
-2. Push to `main`, or run the `Demo Pages` workflow manually.
+2. Push to `main`, or run the `Pages` workflow manually.
 3. Open `Settings -> Pages` and set `Build and deployment -> Source` to `GitHub Actions`.
-4. Rerun the `Demo Pages` workflow to deploy `site-output`.
+4. Rerun the `Pages` workflow to deploy `site-output`.
 
 The workflow intentionally does not create or enable the Pages site through the GitHub API.
 Some repositories return `Resource not accessible by integration` for that operation even

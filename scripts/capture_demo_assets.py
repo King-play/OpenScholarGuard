@@ -1,4 +1,4 @@
-"""Capture reproducible README and demo media assets.
+"""Capture reproducible README and public-site media assets.
 
 The script intentionally depends only on Python's standard library and a local Chromium or
 Chrome executable. If Pillow is installed, it also builds a small animated GIF from the
@@ -34,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
 
     captures = [
         Capture("site", site_dir / "index.html", output_dir / "site-preview.png", args.width, args.height),
-        Capture("demo", site_dir / "demo" / "index.html", output_dir / "demo-preview.png", args.width, args.height),
+        Capture("readme", site_dir / "index.html", output_dir / "demo-preview.png", args.width, args.height),
         Capture(
             "leaderboard",
             site_dir / "benchmark" / "leaderboard.html",
@@ -48,10 +48,10 @@ def main(argv: list[str] | None = None) -> int:
 
     frame_specs = [
         ("001-site", site_dir / "index.html", ""),
-        ("002-demo-hero", site_dir / "demo" / "index.html", ""),
-        ("003-demo-findings", site_dir / "demo" / "index.html", "findings"),
-        ("004-demo-ingestion", site_dir / "demo" / "index.html", "ingestion"),
-        ("005-leaderboard", site_dir / "benchmark" / "leaderboard.html", ""),
+        ("002-workflow", site_dir / "index.html", "workflow"),
+        ("003-leaderboard", site_dir / "benchmark" / "leaderboard.html", ""),
+        ("004-evaluation", site_dir / "benchmark" / "evaluation.html", ""),
+        ("005-pdf-gallery", site_dir / "pdf-gallery" / "index.html", ""),
     ]
     for name, html_path, fragment in frame_specs:
         _capture(
@@ -99,7 +99,7 @@ class Capture:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Capture OpenScholarGuard demo media assets.")
+    parser = argparse.ArgumentParser(description="Capture OpenScholarGuard public-site media assets.")
     parser.add_argument("--output-dir", default="docs/assets", help="directory for screenshots and frames")
     parser.add_argument("--site-dir", default="site-output", help="temporary static site output directory")
     parser.add_argument("--chrome", help="path to Chrome or Chromium executable")

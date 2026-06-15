@@ -17,7 +17,8 @@ def test_generate_site_writes_project_entrypoint(tmp_path: Path) -> None:
     assert artifacts.benchmark.leaderboard_html.exists()
     assert artifacts.pdf_gallery.index_html.exists()
     assert "OpenScholarGuard" in html
-    assert "demo/index.html" in html
+    assert "demo/index.html" not in html
+    assert "ScholarGuardBench" in html
     assert "pdf-gallery/index.html" in html
     assert "benchmark/leaderboard.html" in html
     assert "OpenScholarGuard workflow" in html

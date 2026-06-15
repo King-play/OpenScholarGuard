@@ -1,45 +1,67 @@
-# OpenScholarGuard
+# OpenScholarGuard 🛡️
 
 ![CI](https://github.com/King-play/OpenScholarGuard/actions/workflows/ci.yml/badge.svg)
-![Demo Pages](https://github.com/King-play/OpenScholarGuard/actions/workflows/pages.yml/badge.svg)
+![Pages](https://github.com/King-play/OpenScholarGuard/actions/workflows/pages.yml/badge.svg)
 ![Release Check](https://github.com/King-play/OpenScholarGuard/actions/workflows/release.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-Security and trust layer for AI-assisted peer review, scholarly document ingestion, and
-document agents. OpenScholarGuard scans papers and other documents for prompt injection,
-hidden instructions, review manipulation, encoded payloads, invisible Unicode, suspicious
-PDF styling, and risky PDF metadata before they reach AI reviewers or RAG pipelines.
+**Security and trust layer for AI-assisted peer review, scholarly document ingestion, and document agents.**
 
-> Online demo: <https://king-play.github.io/OpenScholarGuard/>
+OpenScholarGuard screens papers before AI review. It detects document-borne prompt
+injection, hidden instructions, review manipulation, encoded payloads, invisible Unicode,
+PDF text-layer tricks, suspicious metadata, and RAG/tool-boundary risks before content
+reaches reviewer models or document agents.
 
-[![OpenScholarGuard demo walkthrough](docs/assets/demo-preview.gif)](https://king-play.github.io/OpenScholarGuard/)
+🛡️ **Guardrail:** scan, sanitize, audit, and block risky scholarly documents.  
+🧩 **Benchmark:** `ScholarGuardBench v0`, a 36-task synthetic benchmark for AI-review and document-agent safety.  
+📄 **PDF depth:** gallery and audit checks for hidden spans, sparse text layers, OCR candidates, metadata, and image-heavy pages.  
+🔌 **Integrations:** CLI, Python API, HTTP API, GitHub Action, LangChain-style transformers, and LlamaIndex-style postprocessors.
+
+> Public site: <https://king-play.github.io/OpenScholarGuard/>
+
+[![OpenScholarGuard public workflow](docs/assets/demo-preview.gif)](https://king-play.github.io/OpenScholarGuard/)
 
 Static preview: [docs/assets/demo-preview.png](docs/assets/demo-preview.png)
 
-## 60-Second Proof
+## Why It Matters
 
-OpenScholarGuard is meant to be inspectable before anyone installs a dependency:
+AI reviewers and document agents read more than the visible page. They may ingest extracted
+PDF text, metadata, OCR layers, comments, hidden markup, encoded payloads, or retrieved
+chunks. That creates a new attack surface: a paper can contain content meant for a model
+rather than a human reviewer.
 
-- **Online site:** the GitHub Pages build publishes the demo, benchmark evaluation, and leaderboard.
-- **Offline demo:** `openscholarguard demo --output-dir demo-output --overwrite` creates a self-contained HTML dashboard.
-- **Benchmark bundle:** `openscholarguard benchmark publish --output-dir benchmark-publication` emits reproducible evaluation and leaderboard artifacts.
-- **CI gate:** the repository checks linting, typing, tests, rule-pack verification, doctor checks, demo generation, and package build.
+OpenScholarGuard focuses on that boundary:
 
-Demo screenshots and GIF/MP4 source frames are reproducible with:
+- **Screen** papers before AI-assisted review.
+- **Sanitize** risky fragments before RAG or agent ingestion.
+- **Preserve evidence** with structured findings, provenance, and reports.
+- **Benchmark** scanners and model-review behavior with named, reproducible artifacts.
+
+## What's Included
+
+| Layer | What ships today |
+| --- | --- |
+| 🛡️ Scanner | Markdown/text/PDF scanning, hidden instruction detection, encoded payloads, Unicode controls, review manipulation, PDF metadata and styling checks |
+| 🧼 Sanitizer | Risky fragment removal with provenance manifests |
+| 🧩 ScholarGuardBench v0 | 36 task-style synthetic cases, 5 clean controls, 31 attack/integrity-risk tasks, manifest metadata, deterministic baseline leaderboard |
+| 📄 PDF security | Deep audit skeleton, 10-case PDF attack gallery, screenshots, scan reports, OCR-candidate checks |
+| 🔌 Integrations | CLI, Python API, HTTP API, GitHub Action, LangChain-style transformer, LlamaIndex-style postprocessor |
+| 📊 Publication | GitHub Pages site, benchmark reports, leaderboard artifacts, model-eval protocol, arXiv paper skeleton |
+
+## Public Artifacts
+
+- **Project site:** <https://king-play.github.io/OpenScholarGuard/>
+- **ScholarGuardBench v0 leaderboard:** <https://king-play.github.io/OpenScholarGuard/benchmark/leaderboard.html>
+- **Benchmark evaluation:** <https://king-play.github.io/OpenScholarGuard/benchmark/evaluation.html>
+- **PDF attack gallery:** <https://king-play.github.io/OpenScholarGuard/pdf-gallery/>
+- **Dataset card:** [docs/dataset-card.md](docs/dataset-card.md)
+
+Repository screenshots and GIF frames are reproducible with:
 
 ```bash
 python scripts/capture_demo_assets.py
 ```
-
-The immediate release goal is practical: give researchers, conference organizers, RAG
-builders, and AI-review systems a clean scanner, sanitizer, ingestion guard, and report
-pipeline they can test today.
-
-The flagship goal is reproducibility: turn document-borne prompt injection for scholarly
-workflows into a visible benchmark with public artifacts, model responses, PDF attack
-examples, and integration paths. See [ROADMAP.md](ROADMAP.md) and
-[docs/launch.md](docs/launch.md).
 
 ## At A Glance
 
@@ -47,8 +69,8 @@ examples, and integration paths. See [ROADMAP.md](ROADMAP.md) and
 - **Sanitize** risky fragments before AI-assisted review or RAG ingestion.
 - **Ingest** guarded chunks with provenance, detector metadata, and blocking policy.
 - **Verify** custom rule packs with embedded positive and negative tests.
-- **Demo** the full workflow as a static site with ten reproducible attack examples.
-- **Benchmark** scanner behavior with the 36-task `scholarguardbench-v0`, `docpibench-mini`, and leaderboard-style reports.
+- **Publish** the full workflow as a static GitHub Pages site.
+- **Benchmark** scanner behavior with `ScholarGuardBench v0` (`scholarguardbench-v0`), `docpibench-mini`, and leaderboard-style reports.
 - **Judge** model responses with a reproducible prompt/response protocol skeleton.
 - **Collect** model responses from OpenAI-compatible Chat Completions endpoints for public benchmark runs.
 - **Deep-audit PDFs** for OCR candidates, image-heavy pages, hidden spans, and visual/text-layer mismatch.
@@ -56,43 +78,11 @@ examples, and integration paths. See [ROADMAP.md](ROADMAP.md) and
 - **Integrate** through GitHub Actions, LangChain-style transformers, and LlamaIndex-style postprocessors.
 - **Draft papers** with generated arXiv skeletons and benchmark tables.
 
-## Try The Demo
-
-Generate the offline demo locally:
-
-```bash
-pip install -e .
-openscholarguard demo --output-dir demo-output --overwrite
-```
-
-Open `demo-output/index.html`.
-
-The same bundle can be published with GitHub Pages once the repository is public and Pages
-is enabled. While the repository is private, the Pages workflow still builds a downloadable
-demo artifact for review. See [docs/github.md](docs/github.md) for the release path.
-
-## Why This Exists
-
-AI reviewers and document agents read more than the visible page. They may ingest extracted
-PDF text, metadata, OCR layers, comments, hidden markup, or encoded payloads. That creates a
-new attack surface: a paper can contain content meant for a model rather than a human reader.
-
-OpenScholarGuard focuses on this boundary:
-
-- Scan papers before AI-assisted review.
-- Sanitize documents before RAG or agent ingestion.
-- Produce structured reports for audit trails.
-- Provide a foundation for future benchmarks and integrations.
-
 ## Install
 
 OpenScholarGuard supports Python 3.10 and newer.
 
-```bash
-pip install -e .
-```
-
-For PDF support, install the optional PDF extra:
+Install from this repository:
 
 ```bash
 pip install -e ".[pdf]"
@@ -106,23 +96,34 @@ Scan a document:
 openscholarguard scan examples/injected_paper.md
 ```
 
-Run optional LLM-assisted audit of scan findings:
+Sanitize before model ingestion:
 
 ```bash
-$env:OPENAI_API_KEY="<your-openai-api-key>"
-openscholarguard scan examples/injected_paper.md --llm-audit --format json
+openscholarguard sanitize examples/injected_paper.md --output clean.md --manifest clean.manifest.json
 ```
 
-Generate a shareable static demo:
+Run ScholarGuardBench v0:
 
 ```bash
-openscholarguard demo --output-dir demo-output --overwrite
+openscholarguard benchmark evaluate --dataset scholarguardbench-v0
 ```
 
-Generate the full static project site with demo and benchmark leaderboard:
+Generate the public static site locally:
 
 ```bash
 openscholarguard site --output-dir site-output --overwrite
+```
+
+Create guarded chunks for RAG:
+
+```bash
+openscholarguard ingest examples/injected_paper.md --allow-risk --format jsonl
+```
+
+Run the local HTTP API:
+
+```bash
+openscholarguard serve --host 127.0.0.1 --port 8765
 ```
 
 Generate the synthetic PDF attack gallery:
@@ -137,28 +138,29 @@ Check your local setup:
 openscholarguard doctor --demo
 ```
 
+Run optional LLM-assisted audit of scan findings:
+
+```bash
+$env:OPENAI_API_KEY="<your-openai-api-key>"
+openscholarguard scan examples/injected_paper.md --llm-audit --format json
+```
+
 Write an HTML report:
 
 ```bash
 openscholarguard scan examples/injected_paper.md --format html --output reports/scan.html
 ```
 
-Sanitize a document for AI ingestion:
+Generate a complete benchmark publication bundle:
 
 ```bash
-openscholarguard sanitize examples/injected_paper.md --output clean.md --manifest clean.manifest.json
+openscholarguard benchmark publish --output-dir benchmark-publication
 ```
 
-Run the built-in benchmark:
-
-```bash
-openscholarguard benchmark evaluate --dataset scholarguardbench-v0
-```
-
-`scholarguardbench-v0` now ships as a task-style synthetic dataset with 36 cases, 5
-clean controls, 31 attack or integrity-risk tasks, stable task IDs, split metadata,
-difficulty labels, verifier contracts, and expected actions. See
-[docs/dataset-card.md](docs/dataset-card.md) for the dataset card.
+`ScholarGuardBench v0` is the public name for the built-in dataset
+`scholarguardbench-v0`: 36 task-style synthetic cases, 5 clean controls, 31 attack or
+integrity-risk tasks, stable task IDs, split metadata, difficulty labels, verifier
+contracts, and expected actions. See [docs/dataset-card.md](docs/dataset-card.md).
 
 Generate model-evaluation prompts and judge filled responses:
 
@@ -175,19 +177,6 @@ Audit a directory for CI or batch ingestion:
 ```bash
 openscholarguard audit examples --format text
 openscholarguard audit . --format sarif --output openscholarguard.sarif
-```
-
-Create guarded chunks for RAG:
-
-```bash
-openscholarguard ingest paper.md --output-dir ingest-output
-openscholarguard ingest examples/injected_paper.md --allow-risk --format jsonl
-```
-
-Run the local HTTP API:
-
-```bash
-openscholarguard serve --host 127.0.0.1 --port 8765
 ```
 
 Run PDF deep audit checks:
@@ -290,9 +279,9 @@ openscholarguard benchmark evaluate --format html --output benchmark.html
 
 OpenScholarGuard includes two built-in benchmark tracks:
 
-- `scholarguardbench-v0`: the formal v0 seed with 21 synthetic cases across AI-review,
-  RAG, multimodal document, citation-integrity, Unicode obfuscation, AI slop, and
-  agent-tool safety surfaces.
+- `scholarguardbench-v0`: the implementation ID for **ScholarGuardBench v0**, the formal
+  v0 seed with 36 task-style synthetic cases across AI-review, RAG, multimodal document,
+  citation-integrity, Unicode obfuscation, AI slop, and agent-tool safety surfaces.
 - `docpibench-mini`: a compact smoke-test set with one clean control and ten attack cases
   used by the static demo gallery.
 
@@ -354,22 +343,21 @@ openscholarguard paper --output-dir paper-output --overwrite
 The generator writes `main.tex`, benchmark coverage tables, deterministic baseline tables,
 and the evaluation JSON used to produce them. See [docs/paper.md](docs/paper.md).
 
-## Static Demo
+## Local Static Bundle
 
-Generate a polished offline demo bundle for GitHub Pages, talks, videos, or quick project
-reviews:
+Generate a polished offline workflow bundle for talks, videos, or quick project reviews:
 
 ```bash
 openscholarguard demo --output-dir demo-output --overwrite
 ```
 
-Open `demo-output/index.html` to inspect the dashboard. The bundle includes scan reports,
-sanitized output, ingestion chunks, and rule-pack verification artifacts. See
+Open `demo-output/index.html` to inspect the dashboard. This local artifact includes scan
+reports, sanitized output, ingestion chunks, and rule-pack verification artifacts. See
 [docs/demo.md](docs/demo.md) for details.
 
-The repository also includes a GitHub Pages workflow that can publish this generated demo
-and benchmark site from `main`. See [docs/github.md](docs/github.md) for setup and
-release-check details.
+The repository also includes a GitHub Pages workflow that publishes the project site,
+ScholarGuardBench reports, and PDF gallery from `main`. See [docs/github.md](docs/github.md)
+for setup and release-check details.
 
 ## Integrations
 
@@ -386,7 +374,7 @@ See [docs/integrations.md](docs/integrations.md) for examples.
 The engineering MVP is already useful, but the project becomes easier to cite, star, and
 adopt once the public evidence is complete:
 
-- **Public demo:** GitHub Pages URL, README GIF, project-site preview, and downloadable CI artifact.
+- **Public site:** GitHub Pages URL, README GIF, project-site preview, and downloadable CI artifact.
 - **Real model evaluation:** fixed prompts, model versions, response JSONL, judge output, and public leaderboard.
 - **PDF attack gallery:** reproducible PDFs for white text, transparent spans, tiny text, metadata injection, OCR-layer text, image text, encoded payloads, and Unicode obfuscation.
 - **Integrations:** GitHub Action, LangChain/LlamaIndex ingestion hooks, promptfoo/PyRIT adapters, and OpenReview-style workflow examples.
