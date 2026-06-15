@@ -41,10 +41,13 @@ publish the online demo:
 
 1. Make the repository public.
 2. Push to `main`, or run the `Demo Pages` workflow manually.
-3. The workflow configures Pages for GitHub Actions and deploys `site-output`.
+3. Open `Settings -> Pages` and set `Build and deployment -> Source` to `GitHub Actions`.
+4. Rerun the `Demo Pages` workflow to deploy `site-output`.
 
-If your organization blocks workflow-managed Pages setup, open `Settings -> Pages` and set
-`Build and deployment -> Source` to `GitHub Actions`, then rerun the workflow.
+The workflow intentionally does not create or enable the Pages site through the GitHub API.
+Some repositories return `Resource not accessible by integration` for that operation even
+when the workflow has `pages: write`. Manual Pages setup avoids that first-run permission
+edge case; after setup, the workflow handles build and deployment.
 
 The default public URL will be:
 
